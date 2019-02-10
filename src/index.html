@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    .button {
+      height: 40px;
+      width: 120px;
+      font-size: 17px;
+      margin: 10px;
+    }
+  </style>
+  <script src="./playkit-bumper.js"></script>
+</head>
+<body>
+<div id="player-placeholder" style="width: 640px; height: 360px;"></div>
+<button class="button" onclick="play()">Play</button>
+<button class="button" onclick="pause()">Pause</button>
+<button class="button" onclick="volumeUp()">Volume [+]</button>
+<button class="button" onclick="volumeDown()">Volume [-]</button>
+<button class="button" onclick="toggleMute()">Toggle Mute</button>
+<button class="button" onclick="seek()">Seek [+5]</button>
+<script>
+  function play() {
+    window.player.play();
+  }
+
+  function pause() {
+    window.player.pause();
+  }
+
+  function volumeUp() {
+    window.player.volume += 0.1;
+  }
+
+  function volumeDown() {
+    window.player.volume -= 0.1;
+  }
+
+  function toggleMute() {
+    window.player.muted = !window.player.muted;
+  }
+
+  function seek() {
+    window.player.currentTime += 5;
+  }
+
+  window.player = Playkit.loadPlayer('player-placeholder', {
+    playback: {
+      playsinline: false,
+      autoplay: false,
+      muted: false
+    },
+    sources: {
+      progressive: [
+        {
+          "mimetype": "video/mp4",
+          "url": "http://www.html5videoplayer.net/videos/toystory.mp4"
+        }
+      ]
+    },
+    plugins: {
+    }
+  });
+</script>
+</body>
+</html>
