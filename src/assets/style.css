@@ -1,12 +1,26 @@
-.playkit-ads-cover {
-  position: fixed;
+.playkit-bumper-click-through {
+  display: block;
+  height: 100%;
+}
+
+.playkit-bumper-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
   cursor: pointer;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0);
 }
 
-.playkit-ads-container {
+.playkit-bumper-container {
   visibility: hidden;
   position: absolute;
+  width: 100%;
+  height: 100%;
 }
+
+.playkit-bumper-container video{
+  width: 100%;
+  height: 100%;
+}
+
