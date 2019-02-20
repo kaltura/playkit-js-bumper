@@ -1,6 +1,6 @@
 // @flow
 import {BaseMiddleware, EventType} from '@playkit-js/playkit-js';
-import Bumper from './bumper';
+import {Bumper} from './bumper';
 import {BumperState} from './bumper-state';
 
 /**
@@ -35,12 +35,21 @@ class BumperMiddleware extends BaseMiddleware {
     switch (this._context.state) {
       case BumperState.PLAYING:
         break;
-      case BumperState.IDLE:
+      case BumperState.IDLE: {
+        if (this._context.config.position.includes(0)) {
+          // preroll bumper
+          this._context.play();
+          // $FlowFixMe
+          this._context.complete().finally(() => {
+            this.callNext(next);
+          });
+        } else {
+          this.callNext(next);
+        }
+        break;
+      }
       case BumperState.PAUSED: {
         this._context.play();
-        this._context.complete().finally(() => {
-          this.callNext(next);
-        });
         break;
       }
       default: {
@@ -72,7 +81,7 @@ class BumperMiddleware extends BaseMiddleware {
 
   _loadPlayer(): void {
     const loadPlayer = () => {
-      this._context.logger.debug('Load player by ima middleware');
+      this._context.logger.debug('Load player by bumper middleware');
       this._context.player.load();
       this._isPlayerLoaded = true;
     };
