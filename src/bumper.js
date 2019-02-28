@@ -7,8 +7,6 @@ import {BumperAdsController} from './bumper-ads-controller';
 import './assets/style.css';
 
 const BUMPER_CONTAINER_CLASS: string = 'playkit-bumper-container';
-const BUMPER_COVER_CLASS: string = 'playkit-bumper-cover';
-const BUMPER_CLICK_THROUGH_CLASS: string = 'playkit-bumper-click-through';
 
 /**
  * The bumper plugin.
@@ -29,8 +27,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   static defaultConfig: Object = {
     id: '',
     url: '',
-    clickThroughUrl: '',
-    position: [0],
     disableMediaPreload: false
   };
 
@@ -45,10 +41,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _bumperVideoElement: HTMLVideoElement;
   _bumperContainerDiv: HTMLDivElement;
-  _bumperClickThroughDiv: ?HTMLAnchorElement;
   _bumperCompletedPromise: Promise<void>;
   _adBreak: boolean;
-  _adBreakPosition: number;
   _bumperState: string;
   _postBumperPlayed: boolean;
 
@@ -132,16 +126,15 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @memberof Bumper
    */
   reset(): void {
+    this.eventManager.removeAll();
     this._initMembers();
     this._hideBumperContainer();
     Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
-    Utils.Dom.removeAttribute(this._bumperClickThroughDiv, 'href');
-    this.eventManager.removeAll();
     this._addBindings();
   }
 
   set _state(newState: string) {
-    this.logger.debug(`Change state: ${this._bumperState} => ${newState}`);
+    this.logger.debug(`Change state: ${this._bumperState || 'none'} => ${newState}`);
     this._bumperState = newState;
   }
 
@@ -149,8 +142,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return this._bumperState;
   }
 
-  get adBreakPosition(): number {
-    return this._adBreakPosition;
+  get adBreak(): boolean {
+    return this._adBreak;
   }
 
   _initBumperContainer(): void {
@@ -163,14 +156,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._bumperContainerDiv.id = BUMPER_CONTAINER_CLASS + playerView.id;
     this._bumperContainerDiv.className = BUMPER_CONTAINER_CLASS;
     Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperVideoElement);
-    Utils.Dom.appendChild(this._bumperContainerDiv, this._getBumperCover());
     // Append the bumper container to the dom
     Utils.Dom.appendChild(playerView, this._bumperContainerDiv);
   }
 
   _initMembers(): void {
     this._adBreak = false;
-    this._adBreakPosition = this.config.position.sort((a, b) => b - a)[0];
     this._state = BumperState.IDLE;
     this._postBumperPlayed = false;
     this._initBumperCompletedPromise();
@@ -196,9 +187,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this._bumperVideoElement, EventType.WAITING, () => this._onWaiting());
     this.eventManager.listen(this._bumperVideoElement, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
     this.eventManager.listen(this.player, EventType.SOURCE_SELECTED, () => this._onPlayerSourceSelected());
+    this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
-    this.eventManager.listen(this.player, EventType.ENDED, () => this._onPlayerEnded());
   }
 
   _onLoadStart(): void {
@@ -221,27 +212,22 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }
     this._state = BumperState.PLAYING;
     this._showBumperContainer();
-    this._enableBumperClickThrough();
   }
 
   _onPause(): void {
-    if (this._bumperState !== BumperState.IDLE) {
+    if (this._bumperState !== BumperState.DONE) {
       this._state = BumperState.PAUSED;
       this.dispatchEvent(EventType.AD_PAUSED);
-      this._disableBumperClickThrough();
     }
   }
 
   _onEnded(): void {
-    this._state = BumperState.LOADED;
+    this._state = BumperState.DONE;
     this._adBreak = false;
     this._hideBumperContainer();
-    this._initBumperCompletedPromise();
     this.dispatchEvent(EventType.AD_COMPLETED);
     this.dispatchEvent(EventType.AD_BREAK_END);
-    if (!this.config.position.includes(-1) || this._adBreakPosition === -1) {
-      this.dispatchEvent(EventType.ALL_ADS_COMPLETED);
-    }
+    this.dispatchEvent(EventType.ADS_COMPLETED);
   }
 
   _onTimeUpdate(): void {
@@ -256,8 +242,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onError(): void {
+    this._state = BumperState.DONE;
     this.dispatchEvent(EventType.AD_ERROR, this._getAdError());
-    this._state = BumperState.IDLE;
   }
 
   _onWaiting(): void {
@@ -271,7 +257,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPlayerSourceSelected(): void {
-    this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: this.config.position});
+    this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: 0});
+  }
+
+  _onPlayerPlaybackStart(): void {
+    this._bumperVideoElement.load();
   }
 
   _onPlayerVolumeChange(): void {
@@ -285,32 +275,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }
   }
 
-  _onPlayerEnded(): void {
-    if (this.config.position.includes(-1) && !this._postBumperPlayed) {
-      this._postBumperPlayed = true;
-      this._adBreakPosition = -1;
-      this.play();
-    }
-  }
-
   _syncPlayerVolume(): void {
     this._bumperVideoElement.volume = this.player.volume;
     this._bumperVideoElement.muted = this.player.muted;
-  }
-
-  _getBumperCover(): HTMLDivElement {
-    const bumperCoverDiv = Utils.Dom.createElement('div');
-    bumperCoverDiv.className = BUMPER_COVER_CLASS;
-    bumperCoverDiv.onclick = () => this._onBumperCoverClicked();
-    if (this.config.clickThroughUrl) {
-      // Create bumper click through element
-      this._bumperClickThroughDiv = Utils.Dom.createElement('a');
-      this._bumperClickThroughDiv.className = BUMPER_CLICK_THROUGH_CLASS;
-      this._bumperClickThroughDiv.target = '_blank';
-      this._bumperClickThroughDiv.onclick = () => this._onClickThroughClicked();
-      Utils.Dom.appendChild(bumperCoverDiv, this._bumperClickThroughDiv);
-    }
-    return bumperCoverDiv;
   }
 
   _showBumperContainer(): void {
@@ -321,34 +288,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._bumperContainerDiv.style.visibility = 'hidden';
   }
 
-  _enableBumperClickThrough(): void {
-    this._bumperClickThroughDiv && (this._bumperClickThroughDiv.style.visibility = 'visible');
-  }
-
-  _disableBumperClickThrough(): void {
-    this._bumperClickThroughDiv && (this._bumperClickThroughDiv.style.visibility = 'hidden');
-  }
-
-  _onBumperCoverClicked(): void {
-    switch (this._bumperState) {
-      case BumperState.PAUSED:
-        this.play();
-        break;
-      case BumperState.PLAYING:
-        this.pause();
-        break;
-      default:
-        break;
-    }
-  }
-
-  _onClickThroughClicked(): void {
-    this.dispatchEvent(EventType.AD_CLICKED);
-  }
-
   _load(): void {
     this._bumperVideoElement.src = this.config.url;
-    this._bumperClickThroughDiv && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
+    this._bumperVideoElement.setAttribute('playsinline', '');
   }
 
   _getAd(): Ad {
@@ -358,20 +300,20 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       title: '',
       position: 1,
       duration: this._bumperVideoElement.duration,
-      clickThroughUrl: this.config.clickThroughUrl,
+      clickThroughUrl: '',
       posterUrl: '',
       skipOffset: -1,
       linear: true,
       width: this._bumperVideoElement.videoWidth,
       height: this._bumperVideoElement.videoHeight,
-      bitrate: 0
+      bitrate: 0,
+      bumper: true
     };
     return new Ad(this.config.id, adOptions);
   }
 
   _getAdBreak(): Ad {
-    const type = this._adBreakPosition === 0 ? AdBreakType.PRE : AdBreakType.POST;
-    return new AdBreak({type, position: this._adBreakPosition, numAds: 1});
+    return new AdBreak({type: AdBreakType.PRE, position: 0, numAds: 1});
   }
 
   _getAdError(): Error {

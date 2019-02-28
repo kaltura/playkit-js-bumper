@@ -1,12 +1,13 @@
 // @flow
 import {Bumper} from './bumper';
+import {BumperState} from './bumper-state';
 
 /**
  * Controller for bumper plugin.
  * @class BumperAdsController
  * @param {Bumper} context - The bumper plugin context.
  */
-class BumperAdsController implements IAdsController {
+class BumperAdsController implements IAdsPluginController {
   /**
    * The plugin context.
    * @member
@@ -37,6 +38,26 @@ class BumperAdsController implements IAdsController {
    */
   playAdNow(): void {
     // do nothing.
+  }
+
+  /**
+   * Whether this ads controller is active
+   * @public
+   * @returns {void}
+   * @memberof BumperAdsController
+   */
+  get active(): boolean {
+    return this._context.adBreak;
+  }
+
+  /**
+   * Whether this ads controller is done
+   * @public
+   * @returns {boolean} - is done
+   * @memberof ImaAdsController
+   */
+  get done(): boolean {
+    return this._context.state === BumperState.DONE;
   }
 }
 
