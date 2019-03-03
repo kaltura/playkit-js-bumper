@@ -131,6 +131,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._hideBumperContainer();
     Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
     this._addBindings();
+    this._bumperState = BumperState.IDLE;
   }
 
   set _state(newState: string) {
@@ -215,7 +216,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPause(): void {
-    if (this._bumperState !== BumperState.DONE) {
+    if (this._bumperState !== BumperState.IDLE && this._bumperState !== BumperState.DONE) {
       this._state = BumperState.PAUSED;
       this.dispatchEvent(EventType.AD_PAUSED);
     }
