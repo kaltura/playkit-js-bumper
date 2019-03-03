@@ -73,11 +73,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   /**
    * Gets the ads controller.
    * @public
-   * @returns {IAdsController} - The ads api.
+   * @returns {IAdsPluginController} - The ads api.
    * @instance
    * @memberof Ima
    */
-  getAdsController(): IAdsController {
+  getAdsController(): IAdsPluginController {
     return new BumperAdsController(this);
   }
 
@@ -319,7 +319,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _getAdError(): Error {
     const severity = Error.Severity.CRITICAL;
     const category = Error.Category.ADS;
-    const code = this._bumperVideoElement.error.code;
+    const code = this._bumperVideoElement.error && this._bumperVideoElement.error.code;
     return new Error(severity, category, code, {
       ad: this._getAd(),
       innerError: this._bumperVideoElement.error
