@@ -7,6 +7,8 @@ import {BumperAdsController} from './bumper-ads-controller';
 import './assets/style.css';
 
 const BUMPER_CONTAINER_CLASS: string = 'playkit-bumper-container';
+const BUMPER_COVER_CLASS: string = 'playkit-bumper-cover';
+const BUMPER_CLICK_THROUGH_CLASS: string = 'playkit-bumper-click-through';
 
 /**
  * The bumper plugin.
@@ -27,6 +29,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   static defaultConfig: Object = {
     id: '',
     url: '',
+    clickThroughUrl: '',
     disableMediaPreload: false
   };
 
@@ -41,10 +44,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _bumperVideoElement: HTMLVideoElement;
   _bumperContainerDiv: HTMLDivElement;
+  _bumperCoverDiv: HTMLDivElement;
+  _bumperClickThroughDiv: ?HTMLAnchorElement;
   _bumperCompletedPromise: Promise<void>;
   _adBreak: boolean;
   _bumperState: string;
-  _postBumperPlayed: boolean;
 
   /**
    * @constructor
@@ -55,6 +59,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   constructor(name: string, player: Player, config: Object) {
     super(name, player, config);
     this._initBumperContainer();
+    this._initBumperCover();
     this._initMembers();
     this._addBindings();
   }
@@ -82,6 +87,22 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   /**
+   * Update the plugin config.
+   * @override
+   * @public
+   * @returns {void}
+   * @instance
+   * @memberof Bumper
+   */
+  updateConfig(update: Object): void {
+    if (update.id) {
+      // let kaltura player to load the bumper by entryId
+      this.config.url = '';
+    }
+    super.updateConfig(update);
+  }
+
+  /**
    * Play/Resume the bumper
    * @public
    * @returns {void}
@@ -93,6 +114,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._load();
     }
     this._bumperVideoElement.play();
+    this._hideElement(this._bumperCoverDiv);
   }
 
   /**
@@ -127,9 +149,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    */
   reset(): void {
     this.eventManager.removeAll();
-    this._initMembers();
-    this._hideBumperContainer();
+    this._hideElement(this._bumperContainerDiv);
+    this._resetClickThroughElement();
     Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
+    this._initMembers();
     this._addBindings();
     this._bumperState = BumperState.IDLE;
   }
@@ -161,11 +184,18 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     Utils.Dom.appendChild(playerView, this._bumperContainerDiv);
   }
 
+  _initBumperCover(): void {
+    this._bumperCoverDiv = Utils.Dom.createElement('div');
+    this._bumperCoverDiv.className = BUMPER_COVER_CLASS;
+    this._bumperCoverDiv.onclick = () => this.play();
+    Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperCoverDiv);
+  }
+
   _initMembers(): void {
     this._adBreak = false;
     this._state = BumperState.IDLE;
-    this._postBumperPlayed = false;
     this._initBumperCompletedPromise();
+    this._initBumperClickElement();
   }
 
   _initBumperCompletedPromise(): void {
@@ -175,6 +205,25 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }).catch(() => {
       // silence the promise rejection, error is handled by the ad error event
     });
+  }
+
+  _initBumperClickElement(): void {
+    if (this.config.clickThroughUrl) {
+      if (!this._bumperClickThroughDiv) {
+        // Create bumper click through element
+        this._bumperClickThroughDiv = Utils.Dom.createElement('a');
+        this._bumperClickThroughDiv.className = BUMPER_CLICK_THROUGH_CLASS;
+        this._bumperClickThroughDiv.target = '_blank';
+        this._bumperClickThroughDiv.onclick = () => {
+          this.dispatchEvent(EventType.AD_CLICKED);
+          this.pause();
+          this._showElement(this._bumperCoverDiv);
+        };
+        Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperClickThroughDiv);
+      }
+      this._bumperClickThroughDiv.href = this.config.clickThroughUrl;
+      this._showElement(this._bumperClickThroughDiv);
+    }
   }
 
   _addBindings() {
@@ -212,7 +261,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this.dispatchEvent(EventType.AD_RESUMED);
     }
     this._state = BumperState.PLAYING;
-    this._showBumperContainer();
+    this._showElement(this._bumperContainerDiv);
   }
 
   _onPause(): void {
@@ -225,7 +274,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _onEnded(): void {
     this._state = BumperState.DONE;
     this._adBreak = false;
-    this._hideBumperContainer();
+    this._hideElement(this._bumperContainerDiv);
     this.dispatchEvent(EventType.AD_COMPLETED);
     this.dispatchEvent(EventType.AD_BREAK_END);
     this.dispatchEvent(EventType.ADS_COMPLETED);
@@ -281,12 +330,19 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._bumperVideoElement.muted = this.player.muted;
   }
 
-  _showBumperContainer(): void {
-    this._bumperContainerDiv.style.visibility = 'visible';
+  _showElement(el: HTMLElement): void {
+    el.style.visibility = 'visible';
   }
 
-  _hideBumperContainer(): void {
-    this._bumperContainerDiv.style.visibility = 'hidden';
+  _hideElement(el: HTMLElement): void {
+    el.style.visibility = 'hidden';
+  }
+
+  _resetClickThroughElement(): void {
+    if (this._bumperClickThroughDiv) {
+      Utils.Dom.removeAttribute(this._bumperClickThroughDiv, 'href');
+      this._hideElement(this._bumperClickThroughDiv);
+    }
   }
 
   _load(): void {
@@ -296,12 +352,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _getAd(): Ad {
     const adOptions: PKAdOptions = {
+      system: '',
       url: this.config.url,
       contentType: '',
       title: '',
       position: 1,
       duration: this._bumperVideoElement.duration,
-      clickThroughUrl: '',
+      clickThroughUrl: this.config.clickThroughUrl,
       posterUrl: '',
       skipOffset: -1,
       linear: true,

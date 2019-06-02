@@ -29,7 +29,7 @@ class BumperMiddleware extends BaseMiddleware {
    * @returns {void}
    */
   play(next: Function): void {
-    if (!this._isPlayerLoaded && !this._context.config.disableMediaPreload) {
+    if (!(this._isPlayerLoaded || this._context.config.disableMediaPreload)) {
       this._loadPlayer();
     }
     switch (this._context.state) {

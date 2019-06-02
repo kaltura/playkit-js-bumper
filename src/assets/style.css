@@ -1,3 +1,17 @@
+.playkit-bumper-cover {
+  z-index: 1;
+}
+
+.playkit-bumper-cover, .playkit-bumper-click-through {
+  visibility: hidden;
+  position: absolute;
+  top :0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
 .playkit-bumper-container {
   visibility: hidden;
   position: absolute;
@@ -9,4 +23,3 @@
   width: 100%;
   height: 100%;
 }
-
