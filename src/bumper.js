@@ -30,6 +30,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     id: '',
     url: '',
     clickThroughUrl: '',
+    position: [0],
     disableMediaPreload: false
   };
 
@@ -48,6 +49,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _bumperClickThroughDiv: ?HTMLAnchorElement;
   _bumperCompletedPromise: Promise<void>;
   _adBreak: boolean;
+  _adBreakPosition: number;
   _bumperState: string;
 
   /**
@@ -154,7 +156,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
     this._initMembers();
     this._addBindings();
-    this._bumperState = BumperState.IDLE;
   }
 
   set _state(newState: string) {
@@ -193,6 +194,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _initMembers(): void {
     this._adBreak = false;
+    this._adBreakPosition = this.config.position.sort((a, b) => b - a)[0];
     this._state = BumperState.IDLE;
     this._initBumperCompletedPromise();
     this._initBumperClickElement();
@@ -240,6 +242,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
+    this.eventManager.listen(this.player, EventType.ENDED, () => this._onPlayerEnded());
   }
 
   _onLoadStart(): void {
@@ -265,30 +268,29 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPause(): void {
-    if (this._bumperState !== BumperState.IDLE && this._bumperState !== BumperState.DONE) {
-      this._state = BumperState.PAUSED;
-      this.dispatchEvent(EventType.AD_PAUSED);
-    }
+    this._state = BumperState.PAUSED;
+    this.dispatchEvent(EventType.AD_PAUSED);
   }
 
   _onEnded(): void {
-    this._state = BumperState.DONE;
+    this._state = BumperState.LOADED;
     this._adBreak = false;
     this._hideElement(this._bumperContainerDiv);
     this.dispatchEvent(EventType.AD_COMPLETED);
     this.dispatchEvent(EventType.AD_BREAK_END);
-    this.dispatchEvent(EventType.ADS_COMPLETED);
+    if (!this.config.position.includes(-1) || this._adBreakPosition === -1) {
+      this._state = BumperState.DONE;
+      this.dispatchEvent(EventType.ADS_COMPLETED);
+    }
   }
 
   _onTimeUpdate(): void {
-    if (this._bumperState !== BumperState.IDLE) {
-      this.dispatchEvent(EventType.AD_PROGRESS, {
-        adProgress: {
-          currentTime: this._bumperVideoElement.currentTime,
-          duration: this._bumperVideoElement.duration
-        }
-      });
-    }
+    this.dispatchEvent(EventType.AD_PROGRESS, {
+      adProgress: {
+        currentTime: this._bumperVideoElement.currentTime,
+        duration: this._bumperVideoElement.duration
+      }
+    });
   }
 
   _onError(): void {
@@ -307,7 +309,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPlayerSourceSelected(): void {
-    this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: 0});
+    this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: this.config.position});
   }
 
   _onPlayerPlaybackStart(): void {
@@ -322,6 +324,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._syncPlayerVolume();
     if (this._adBreak) {
       event.payload.mute && this.dispatchEvent(EventType.AD_MUTED);
+    }
+  }
+
+  _onPlayerEnded(): void {
+    if (this._bumperState !== BumperState.DONE) {
+      this._adBreakPosition = -1;
+      this.play();
     }
   }
 
@@ -371,7 +380,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _getAdBreak(): Ad {
-    return new AdBreak({type: AdBreakType.PRE, position: 0, numAds: 1});
+    const type = this._adBreakPosition === 0 ? AdBreakType.PRE : AdBreakType.POST;
+    return new AdBreak({type, position: this._adBreakPosition, numAds: 1});
   }
 
   _getAdError(): Error {

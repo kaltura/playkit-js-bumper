@@ -36,11 +36,16 @@ class BumperMiddleware extends BaseMiddleware {
       case BumperState.PLAYING:
         break;
       case BumperState.IDLE: {
-        this._context.play();
-        // $FlowFixMe
-        this._context.complete().finally(() => {
+        if (this._context.config.position.includes(0)) {
+          // preroll bumper
+          this._context.play();
+          // $FlowFixMe
+          this._context.complete().finally(() => {
+            this.callNext(next);
+          });
+        } else {
           this.callNext(next);
-        });
+        }
         break;
       }
       case BumperState.PAUSED: {
