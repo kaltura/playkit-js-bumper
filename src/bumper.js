@@ -89,22 +89,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   /**
-   * Update the plugin config.
-   * @override
-   * @public
-   * @returns {void}
-   * @instance
-   * @memberof Bumper
-   */
-  updateConfig(update: Object): void {
-    if (update.id) {
-      // let kaltura player to load the bumper by entryId
-      this.config.url = '';
-    }
-    super.updateConfig(update);
-  }
-
-  /**
    * Play/Resume the bumper
    * @public
    * @returns {void}
