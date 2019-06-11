@@ -252,8 +252,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPause(): void {
-    this._state = BumperState.PAUSED;
-    this.dispatchEvent(EventType.AD_PAUSED);
+    if (this._bumperState === BumperState.PLAYING) {
+      this._state = BumperState.PAUSED;
+      this.dispatchEvent(EventType.AD_PAUSED);
+    }
   }
 
   _onEnded(): void {
