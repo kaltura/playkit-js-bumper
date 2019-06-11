@@ -5,22 +5,26 @@
 * [BumperAdsController][1]
   * [Parameters][2]
   * [skipAd][3]
-* [BumperMiddleware][4]
-  * [Parameters][5]
-  * [play][6]
-    * [Parameters][7]
-  * [pause][8]
+  * [active][4]
+* [done][5]
+* [BumperMiddleware][6]
+  * [Parameters][7]
+  * [play][8]
     * [Parameters][9]
-* [Bumper][10]
-  * [Parameters][11]
-  * [getMiddlewareImpl][12]
-  * [play][13]
-  * [pause][14]
-  * [complete][15]
-  * [reset][16]
-  * [defaultConfig][17]
-  * [isValid][18]
-* [getAdsController][19]
+  * [pause][10]
+    * [Parameters][11]
+* [Bumper][12]
+  * [Parameters][13]
+  * [getMiddlewareImpl][14]
+  * [updateConfig][15]
+    * [Parameters][16]
+  * [play][17]
+  * [pause][18]
+  * [complete][19]
+  * [reset][20]
+  * [defaultConfig][21]
+  * [isValid][22]
+* [getAdsController][23]
 
 ## BumperAdsController
 
@@ -28,13 +32,25 @@ Controller for bumper plugin.
 
 ### Parameters
 
-* `context` **[Bumper][20]** The bumper plugin context.
+* `context` **[Bumper][24]** The bumper plugin context.
 
 ### skipAd
 
 Skip on an ad.
 
 Returns **void**
+
+### active
+
+Whether this ads controller is active
+
+Returns **void**
+
+## done
+
+Whether this ads controller is done
+
+Returns **[boolean][25]** is done
 
 ## BumperMiddleware
 
@@ -44,7 +60,7 @@ Middleware implementation for bumper plugin.
 
 ### Parameters
 
-* `context` **[Bumper][20]** The bumper plugin context.
+* `context` **[Bumper][24]** The bumper plugin context.
 
 ### play
 
@@ -52,7 +68,7 @@ Play middleware handler.
 
 #### Parameters
 
-* `next` **[Function][21]** The next play handler in the middleware chain.
+* `next` **[Function][26]** The next play handler in the middleware chain.
 
 Returns **void**
 
@@ -62,7 +78,7 @@ Pause middleware handler.
 
 #### Parameters
 
-* `next` **[Function][21]** The next pause handler in the middleware chain.
+* `next` **[Function][26]** The next pause handler in the middleware chain.
 
 Returns **void**
 
@@ -74,15 +90,25 @@ The bumper plugin.
 
 ### Parameters
 
-* `name` **[string][22]** The plugin name.
+* `name` **[string][27]** The plugin name.
 * `player` **Player** The player instance.
-* `config` **[Object][23]** The plugin config.
+* `config` **[Object][28]** The plugin config.
 
 ### getMiddlewareImpl
 
 Gets the middleware.
 
-Returns **[BumperMiddleware][24]** The middleware api.
+Returns **[BumperMiddleware][29]** The middleware api.
+
+### updateConfig
+
+Update the plugin config.
+
+#### Parameters
+
+* `update` **[Object][28]**
+
+Returns **void**
 
 ### play
 
@@ -100,7 +126,7 @@ Returns **void**
 
 Bumper completed promise
 
-Returns **[Promise][25]&lt;void>** bumper completed
+Returns **[Promise][30]&lt;void>** bumper completed
 
 ### reset
 
@@ -112,41 +138,45 @@ Returns **void**
 
 The default configuration of the plugin.
 
-Type: [Object][23]
+Type: [Object][28]
 
 ### isValid
 
-Returns **[boolean][26]** Whether the plugin is valid.
+Returns **[boolean][25]** Whether the plugin is valid.
 
 ## getAdsController
 
 Gets the ads controller.
 
-Returns **IAdsController** The ads api.
+Returns **IAdsPluginController** The ads api.
 
 [1]: #bumperadscontroller
 [2]: #parameters
 [3]: #skipad
-[4]: #bumpermiddleware
-[5]: #parameters-1
-[6]: #play
-[7]: #parameters-2
-[8]: #pause
-[9]: #parameters-3
-[10]: #bumper
-[11]: #parameters-4
-[12]: #getmiddlewareimpl
-[13]: #play-1
-[14]: #pause-1
-[15]: #complete
-[16]: #reset
-[17]: #defaultconfig
-[18]: #isvalid
-[19]: #getadscontroller
-[20]: #bumper
-[21]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
-[22]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
-[23]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
-[24]: #bumpermiddleware
-[25]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[26]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[4]: #active
+[5]: #done
+[6]: #bumpermiddleware
+[7]: #parameters-1
+[8]: #play
+[9]: #parameters-2
+[10]: #pause
+[11]: #parameters-3
+[12]: #bumper
+[13]: #parameters-4
+[14]: #getmiddlewareimpl
+[15]: #updateconfig
+[16]: #parameters-5
+[17]: #play-1
+[18]: #pause-1
+[19]: #complete
+[20]: #reset
+[21]: #defaultconfig
+[22]: #isvalid
+[23]: #getadscontroller
+[24]: #bumper
+[25]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[26]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[27]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[28]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[29]: #bumpermiddleware
+[30]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
