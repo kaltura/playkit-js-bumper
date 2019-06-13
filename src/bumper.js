@@ -207,7 +207,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
         };
         Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperClickThroughDiv);
       }
-      this._bumperClickThroughDiv.href = this.config.clickThroughUrl;
+      this._bumperClickThroughDiv && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
       this._showElement(this._bumperClickThroughDiv);
     }
   }
@@ -325,12 +325,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._bumperVideoElement.muted = this.player.muted;
   }
 
-  _showElement(el: HTMLElement): void {
-    el.style.visibility = 'visible';
+  _showElement(el: ?HTMLElement): void {
+    el && (el.style.visibility = 'visible');
   }
 
-  _hideElement(el: HTMLElement): void {
-    el.style.visibility = 'hidden';
+  _hideElement(el: ?HTMLElement): void {
+    el && (el.style.visibility = 'hidden');
   }
 
   _resetClickThroughElement(): void {
