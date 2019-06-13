@@ -30,7 +30,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     id: '',
     url: '',
     clickThroughUrl: '',
-    position: [0],
+    position: [0, -1],
     disableMediaPreload: false
   };
 
@@ -226,7 +226,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
-    this.eventManager.listen(this.player, EventType.ENDED, () => this._onPlayerEnded());
   }
 
   _onLoadStart(): void {
@@ -316,6 +315,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _onPlayerEnded(): void {
     if (this._bumperState !== BumperState.DONE) {
       this._adBreakPosition = -1;
+      this._initBumperCompletedPromise();
       this.play();
     }
   }

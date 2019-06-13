@@ -32,12 +32,23 @@ class BumperAdsController implements IAdsPluginController {
 
   /**
    * Play an ad on demand.
-   * @private
+   * @public
    * @returns {void}
    * @memberof BumperAdsController
    */
   playAdNow(): void {
     // do nothing.
+  }
+
+  /**
+   * On playback ended handler.
+   * @public
+   * @returns {Promise<void>} - complete promise
+   * @memberof BumperAdsController
+   */
+  onPlaybackEnded(): Promise<void> {
+    this._context._onPlayerEnded();
+    return this._context.complete();
   }
 
   /**
