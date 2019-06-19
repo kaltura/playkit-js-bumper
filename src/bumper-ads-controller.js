@@ -65,10 +65,20 @@ class BumperAdsController implements IAdsPluginController {
    * Whether this ads controller is done
    * @public
    * @returns {boolean} - is done
-   * @memberof ImaAdsController
+   * @memberof BumperAdsController
    */
   get done(): boolean {
     return this._context.state === BumperState.DONE;
+  }
+
+  /**
+   * The controller name
+   * @public
+   * @returns {string} - The name
+   * @memberof BumperAdsController
+   */
+  get name(): string {
+    return this._context.name;
   }
 }
 
