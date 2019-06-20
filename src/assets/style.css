@@ -3,7 +3,6 @@
 }
 
 .playkit-bumper-cover, .playkit-bumper-click-through {
-  visibility: hidden;
   position: absolute;
   top :0;
   left: 0;
