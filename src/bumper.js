@@ -46,7 +46,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _bumperVideoElement: HTMLVideoElement;
   _bumperContainerDiv: HTMLDivElement;
   _bumperCoverDiv: HTMLDivElement;
-  _bumperClickThroughDiv: ?HTMLAnchorElement;
+  _bumperClickThroughDiv: HTMLAnchorElement;
   _bumperCompletedPromise: Promise<void>;
   _adBreak: boolean;
   _adBreakPosition: number;
@@ -61,7 +61,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   constructor(name: string, player: Player, config: Object) {
     super(name, player, config);
     this._initBumperContainer();
-    this._initBumperCover();
     this._initMembers();
     this._addBindings();
   }
@@ -167,6 +166,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperVideoElement);
     // Append the bumper container to the dom
     Utils.Dom.appendChild(playerView, this._bumperContainerDiv);
+    this._initBumperCover();
+    this._initBumperClickElement();
   }
 
   _initBumperCover(): void {
@@ -176,12 +177,24 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperCoverDiv);
   }
 
+  _initBumperClickElement(): void {
+    this._bumperClickThroughDiv = Utils.Dom.createElement('a');
+    this._bumperClickThroughDiv.className = BUMPER_CLICK_THROUGH_CLASS;
+    this._bumperClickThroughDiv.target = '_blank';
+    this._bumperClickThroughDiv.onclick = () => {
+      this.config.clickThroughUrl && this.dispatchEvent(EventType.AD_CLICKED);
+      this.pause();
+      this._showElement(this._bumperCoverDiv);
+    };
+    Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperClickThroughDiv);
+  }
+
   _initMembers(): void {
     this._adBreak = false;
     this._adBreakPosition = this.config.position.sort((a, b) => b - a)[0];
+    this.config.clickThroughUrl && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
     this._state = BumperState.IDLE;
     this._initBumperCompletedPromise();
-    this._initBumperClickElement();
   }
 
   _initBumperCompletedPromise(): void {
@@ -191,25 +204,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }).catch(() => {
       // silence the promise rejection, error is handled by the ad error event
     });
-  }
-
-  _initBumperClickElement(): void {
-    if (this.config.clickThroughUrl) {
-      if (!this._bumperClickThroughDiv) {
-        // Create bumper click through element
-        this._bumperClickThroughDiv = Utils.Dom.createElement('a');
-        this._bumperClickThroughDiv.className = BUMPER_CLICK_THROUGH_CLASS;
-        this._bumperClickThroughDiv.target = '_blank';
-        this._bumperClickThroughDiv.onclick = () => {
-          this.dispatchEvent(EventType.AD_CLICKED);
-          this.pause();
-          this._showElement(this._bumperCoverDiv);
-        };
-        Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperClickThroughDiv);
-      }
-      this._bumperClickThroughDiv && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
-      this._showElement(this._bumperClickThroughDiv);
-    }
   }
 
   _addBindings() {
@@ -334,10 +328,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _resetClickThroughElement(): void {
-    if (this._bumperClickThroughDiv) {
-      Utils.Dom.removeAttribute(this._bumperClickThroughDiv, 'href');
-      this._hideElement(this._bumperClickThroughDiv);
-    }
+    Utils.Dom.removeAttribute(this._bumperClickThroughDiv, 'href');
   }
 
   _load(): void {
