@@ -10,7 +10,7 @@ import {BumperState} from './bumper-state';
 class BumperMiddleware extends BaseMiddleware {
   id: string = 'BumperMiddleware';
   _context: Bumper;
-  _isPlayerLoaded: boolean;
+  _isFirstPlay: boolean;
 
   /**
    * @constructor
@@ -19,8 +19,8 @@ class BumperMiddleware extends BaseMiddleware {
   constructor(context: Bumper) {
     super();
     this._context = context;
-    this._isPlayerLoaded = false;
-    this._context.player.addEventListener(EventType.CHANGE_SOURCE_STARTED, () => (this._isPlayerLoaded = false));
+    this._isFirstPlay = true;
+    this._context.player.addEventListener(EventType.CHANGE_SOURCE_STARTED, () => (this._isFirstPlay = true));
   }
 
   /**
@@ -29,8 +29,9 @@ class BumperMiddleware extends BaseMiddleware {
    * @returns {void}
    */
   play(next: Function): void {
-    if (!(this._isPlayerLoaded || this._context.config.disableMediaPreload)) {
-      this._loadPlayer();
+    if (this._isFirstPlay) {
+      this._isFirstPlay = false;
+      this._context.config.disableMediaPreload ? this._context.player.getVideoElement().load() : this._loadPlayer();
     }
     switch (this._context.state) {
       case BumperState.PLAYING:
@@ -83,7 +84,6 @@ class BumperMiddleware extends BaseMiddleware {
     const loadPlayer = () => {
       this._context.logger.debug('Load player by bumper middleware');
       this._context.player.load();
-      this._isPlayerLoaded = true;
     };
     if (this._context.player.engineType) {
       // player has source to play
