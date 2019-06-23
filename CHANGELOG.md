@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.1"></a>
+## [1.0.1](https://github.com/kaltura/playkit-js-bumper/compare/v1.0.0...v1.0.1) (2019-06-23)
+
+
+### Bug Fixes
+
+* **FEC-9191:** when clickthrough isn't configured, the bumper doesn't paused by clicking ([#4](https://github.com/kaltura/playkit-js-bumper/issues/4)) ([8805919](https://github.com/kaltura/playkit-js-bumper/commit/8805919))
+* **FEC-9192:** post bumper doesn't play ([#3](https://github.com/kaltura/playkit-js-bumper/issues/3)) ([9c69967](https://github.com/kaltura/playkit-js-bumper/commit/9c69967))
+* **FEC-9193:** the bumper isn't extended to all player area ([#6](https://github.com/kaltura/playkit-js-bumper/issues/6)) ([6855970](https://github.com/kaltura/playkit-js-bumper/commit/6855970))
+* **FEC-9195:** the media doesn't auto continue after the bumper finished, when disableMediaPreLoad is true ([#5](https://github.com/kaltura/playkit-js-bumper/issues/5)) ([e91fe11](https://github.com/kaltura/playkit-js-bumper/commit/e91fe11))
+
+
+
 <a name="1.0.0"></a>
 # 1.0.0 (2019-06-13)
 
