@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.2"></a>
+## [1.0.2](https://github.com/kaltura/playkit-js-bumper/compare/v1.0.1...v1.0.2) (2019-06-23)
+
+
+### Bug Fixes
+
+* AD_MANIFEST_LOADED fired when no url configured ([#7](https://github.com/kaltura/playkit-js-bumper/issues/7)) ([84f43bd](https://github.com/kaltura/playkit-js-bumper/commit/84f43bd))
+
+
+
 <a name="1.0.1"></a>
 ## [1.0.1](https://github.com/kaltura/playkit-js-bumper/compare/v1.0.0...v1.0.1) (2019-06-23)
 
