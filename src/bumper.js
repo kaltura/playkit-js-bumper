@@ -9,6 +9,7 @@ import './assets/style.css';
 const BUMPER_CONTAINER_CLASS: string = 'playkit-bumper-container';
 const BUMPER_COVER_CLASS: string = 'playkit-bumper-cover';
 const BUMPER_CLICK_THROUGH_CLASS: string = 'playkit-bumper-click-through';
+const DEFAULT_POSITION: Array<number> = [0, -1];
 
 /**
  * The bumper plugin.
@@ -30,7 +31,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     id: '',
     url: '',
     clickThroughUrl: '',
-    position: [0, -1],
+    position: DEFAULT_POSITION,
     disableMediaPreload: false
   };
 
@@ -191,10 +192,18 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _initMembers(): void {
     this._adBreak = false;
-    this._adBreakPosition = this.config.position.sort((a, b) => b - a)[0];
+    this._validatePosition();
+    this._adBreakPosition = this.config.position[0];
     this.config.clickThroughUrl && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
     this._state = BumperState.IDLE;
     this._initBumperCompletedPromise();
+  }
+
+  _validatePosition(): void {
+    // position should be [0], [-1] or [0, -1]
+    if (this.config.position.length !== 1 || (this.config.position[0] !== 0 && this.config.position[0] !== -1)) {
+      this.config.position = DEFAULT_POSITION;
+    }
   }
 
   _initBumperCompletedPromise(): void {
@@ -216,7 +225,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this._bumperVideoElement, EventType.ERROR, () => this._onError());
     this.eventManager.listen(this._bumperVideoElement, EventType.WAITING, () => this._onWaiting());
     this.eventManager.listen(this._bumperVideoElement, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
-    this.eventManager.listen(this.player, EventType.SOURCE_SELECTED, () => this._onPlayerSourceSelected());
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
@@ -287,8 +295,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }
   }
 
-  _onPlayerSourceSelected(): void {
-    this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: this.config.position});
+  loadMedia(): void {
+    if (this.config.url) {
+      this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: this.config.position});
+    }
   }
 
   _onPlayerPlaybackStart(): void {
