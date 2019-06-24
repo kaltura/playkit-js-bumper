@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.3"></a>
+## [1.0.3](https://github.com/kaltura/playkit-js-bumper/compare/v1.0.2...v1.0.3) (2019-06-24)
+
+
+### Bug Fixes
+
+* **FEC-9211:** full screen not applied on the bumper ([#8](https://github.com/kaltura/playkit-js-bumper/issues/8)) ([f5f0ee3](https://github.com/kaltura/playkit-js-bumper/commit/f5f0ee3))
+* **FEC-9214:** the player stuck after pre-roll when bumper.disableMediaPreload is true ([#9](https://github.com/kaltura/playkit-js-bumper/issues/9)) ([7486475](https://github.com/kaltura/playkit-js-bumper/commit/7486475))
+
+
+
 <a name="1.0.2"></a>
 ## [1.0.2](https://github.com/kaltura/playkit-js-bumper/compare/v1.0.1...v1.0.2) (2019-06-23)
 
