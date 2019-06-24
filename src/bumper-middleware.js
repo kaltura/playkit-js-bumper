@@ -29,8 +29,7 @@ class BumperMiddleware extends BaseMiddleware {
    * @returns {void}
    */
   play(next: Function): void {
-    if (this._isFirstPlay) {
-      this._isFirstPlay = false;
+    if (this._isFirstPlay && !this._context.playOnMainVideoTag()) {
       if (this._context.config.disableMediaPreload) {
         if (!this._context.player.getVideoElement().src) {
           this._context.player.getVideoElement().load();
@@ -39,6 +38,7 @@ class BumperMiddleware extends BaseMiddleware {
         this._loadPlayer();
       }
     }
+    this._isFirstPlay = false;
     switch (this._context.state) {
       case BumperState.PLAYING:
         break;
