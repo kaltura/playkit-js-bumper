@@ -228,8 +228,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
-    this.eventManager.listen(this.player, EventType.ENTER_FULLSCREEN, () => this._onPlayerEnterFullscreen());
-    this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
   }
 
   _onLoadStart(): void {
@@ -316,14 +314,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     if (this._adBreak) {
       event.payload.mute && this.dispatchEvent(EventType.AD_MUTED);
     }
-  }
-
-  _onPlayerEnterFullscreen(): void {
-    this._bumperContainerDiv.style.height = '100%';
-  }
-
-  _onPlayerExitFullscreen(): void {
-    this._bumperContainerDiv.style.height = 'initial';
   }
 
   _onPlayerEnded(): void {
