@@ -16,10 +16,13 @@ class BumperEngineDecorator extends BaseEngineDecorator {
     this._plugin = plugin;
   }
 
+  get active(): boolean {
+    return this._plugin.playOnMainVideoTag() && this._plugin.isPlayingAd();
+  }
+
   dispatchEvent(event: FakeEvent): boolean {
-    const ignoreEvent = this._plugin.playOnMainVideoTag() && this._plugin.adBreak;
     event.type === EventType.ENDED && this._plugin.onEnded();
-    return ignoreEvent ? event.defaultPrevented : super.dispatchEvent(event);
+    return event.defaultPrevented;
   }
   /**
    * Get paused state.
@@ -30,7 +33,7 @@ class BumperEngineDecorator extends BaseEngineDecorator {
    * @memberof BumperEngineDecorator
    */
   get paused(): boolean {
-    return (this._plugin.playOnMainVideoTag() && this._plugin.adBreak) || super.paused;
+    return true;
   }
   /**
    * Get the current time in seconds.
@@ -41,7 +44,7 @@ class BumperEngineDecorator extends BaseEngineDecorator {
    * @memberof BumperEngineDecorator
    */
   get currentTime(): number {
-    return this._plugin.playOnMainVideoTag() && this._plugin.adBreak ? this._plugin.getContentTime() : super.currentTime;
+    return this._plugin.getContentTime();
   }
   /**
    * Set the current time in seconds.
@@ -61,7 +64,7 @@ class BumperEngineDecorator extends BaseEngineDecorator {
    * @memberof BumperEngineDecorator
    */
   get duration(): ?number {
-    return this._plugin.playOnMainVideoTag() && this._plugin.adBreak ? this._plugin.getContentDuration() : super.duration;
+    return this._plugin.getContentDuration();
   }
 }
 

@@ -3,7 +3,6 @@
 import {
   BaseMiddleware,
   BasePlugin,
-  BaseEngineDecorator,
   Utils,
   Error,
   FakeEvent,
@@ -131,6 +130,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    */
   play(): void {
     if (this._bumperState === BumperState.IDLE) {
+      this._initBumperCompletedPromise();
       this._load();
     }
     this._adBreak = true;
@@ -205,17 +205,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._hideElement(this._bumperContainerDiv);
       this.dispatchEvent(EventType.AD_COMPLETED);
       this.dispatchEvent(EventType.AD_BREAK_END);
+      if (this._adBreakPosition === 0) {
+        this._maybeSwitchToContent();
+      }
       if (!this.config.position.includes(-1) || this._adBreakPosition === -1) {
         this._state = BumperState.DONE;
         this.dispatchEvent(EventType.ADS_COMPLETED);
-        if (this.playOnMainVideoTag()) {
-          this.logger.debug('Switch source to content url');
-          this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
-            this.player.selectTrack(this._selectedAudioTrack);
-            this.player.selectTrack(this._selectedTextTrack);
-          });
-          this.player.getVideoElement().src = this._contentSrc;
-        }
       }
     }
   }
@@ -223,7 +218,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   onPlayerEnded(): void {
     if (this._bumperState !== BumperState.DONE) {
       this._adBreakPosition = -1;
-      this._initBumperCompletedPromise();
       this.playOnMainVideoTag() && (this._state = BumperState.IDLE);
       this.play();
     }
@@ -238,7 +232,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return this._bumperState;
   }
 
-  get adBreak(): boolean {
+  isPlayingAd(): boolean {
     return this._adBreak;
   }
 
@@ -288,7 +282,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._selectedAudioTrack = null;
     this._selectedTextTrack = null;
     this._state = BumperState.IDLE;
-    this._initBumperCompletedPromise();
   }
 
   _validatePosition(): void {
@@ -332,6 +325,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this._bumperVideoElement, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
     this.eventManager.listen(this.player, EventType.SOURCE_SELECTED, () => this._onPlayerSourceSelected());
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
+    this.eventManager.listen(this.player, EventType.PLAYBACK_ENDED, () => this._onPlayerPlaybackEnded());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
   }
@@ -409,6 +403,21 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _onPlayerPlaybackStart(): void {
     this._bumperVideoElement.load();
+  }
+
+  _onPlayerPlaybackEnded(): void {
+    this._maybeSwitchToContent();
+  }
+
+  _maybeSwitchToContent(): void {
+    if (this.playOnMainVideoTag() && this._contentSrc && this.player.getVideoElement().src === this.config.url) {
+      this.logger.debug('Switch source to content url');
+      // this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
+      //   this.player.selectTrack(this._selectedAudioTrack);
+      //   this.player.selectTrack(this._selectedTextTrack);
+      // });
+      this.player.getVideoElement().src = this._contentSrc;
+    }
   }
 
   _onPlayerVolumeChange(): void {
