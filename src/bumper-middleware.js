@@ -45,6 +45,7 @@ class BumperMiddleware extends BaseMiddleware {
       case BumperState.IDLE: {
         if (this._context.config.url && this._context.config.position.includes(0)) {
           // preroll bumper
+          this._context.initBumperCompletedPromise();
           this._context.play();
           // $FlowFixMe
           this._context.complete().finally(() => {
