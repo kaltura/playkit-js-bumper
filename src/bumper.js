@@ -97,6 +97,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    */
   getEngineDecorator(engine: IEngine): IEngine {
     this._engine = engine;
+    // $FlowFixMe
     return new BumperEngineDecorator(engine, this);
   }
 
@@ -329,7 +330,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.PLAYBACK_ENDED, () => this._onPlayerPlaybackEnded());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
-    this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, event => this._onPlayerExitFullscreen(event));
+    this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
   }
 
   _onLoadStart(): void {

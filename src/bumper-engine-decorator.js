@@ -62,7 +62,7 @@ class BumperEngineDecorator {
    * @instance
    * @memberof BumperEngineDecorator
    */
-  get duration(): ?number {
+  get duration(): number {
     return this._plugin.getContentDuration();
   }
 }
