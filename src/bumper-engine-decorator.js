@@ -1,5 +1,5 @@
 // @flow
-import {BaseEngineDecorator, FakeEvent, EventType} from '@playkit-js/playkit-js';
+import {FakeEvent, EventType} from '@playkit-js/playkit-js';
 import {Bumper} from './bumper';
 
 /**
@@ -8,11 +8,10 @@ import {Bumper} from './bumper';
  * @param {IEngine} engine - The engine.
  * @param {Bumper} plugin - The bumper plugin.
  */
-class BumperEngineDecorator extends BaseEngineDecorator {
+class BumperEngineDecorator {
   _plugin: Bumper;
 
   constructor(engine: IEngine, plugin: Bumper) {
-    super(engine);
     this._plugin = plugin;
   }
 
@@ -53,7 +52,7 @@ class BumperEngineDecorator extends BaseEngineDecorator {
    * @returns {void}
    */
   set currentTime(to: number): void {
-    super.currentTime = to;
+    // Do nothing
   }
   /**
    * Get the duration in seconds.

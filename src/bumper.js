@@ -33,9 +33,10 @@ const DEFAULT_POSITION: Array<number> = [0, -1];
  * @param {Object} config - The plugin config.
  * @implements {IMiddlewareProvider}
  * @implements {IAdsControllerProvider}
+ * @implements {IEngineDecoratorProvider}
  * @extends BasePlugin
  */
-class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerProvider {
+class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerProvider, IEngineDecoratorProvider {
   /**
    * The default configuration of the plugin.
    * @type {Object}
@@ -90,11 +91,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * Gets the engine decorator.
    * @param {IEngine} engine - The engine to decorate.
    * @public
-   * @returns {BaseEngineDecorator} - The ads api.
+   * @returns {IEngine} - The ads api.
    * @instance
    * @memberof Bumper
    */
-  getEngineDecorator(engine: IEngine): BaseEngineDecorator {
+  getEngineDecorator(engine: IEngine): IEngine {
     this._engine = engine;
     return new BumperEngineDecorator(engine, this);
   }
@@ -328,6 +329,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.PLAYBACK_ENDED, () => this._onPlayerPlaybackEnded());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
+    this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, event => this._onPlayerExitFullscreen(event));
   }
 
   _onLoadStart(): void {
@@ -410,13 +412,14 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _maybeSwitchToContent(): void {
-    if (this.playOnMainVideoTag() && this._contentSrc && this.player.getVideoElement().src === this.config.url) {
+    if (this._contentSrc && this.player.getVideoElement().src === this.config.url) {
       this.logger.debug('Switch source to content url');
-      // this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
-      //   this.player.selectTrack(this._selectedAudioTrack);
-      //   this.player.selectTrack(this._selectedTextTrack);
-      // });
+      this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
+        this.player.selectTrack(this._selectedAudioTrack);
+        this.player.selectTrack(this._selectedTextTrack);
+      });
       this.player.getVideoElement().src = this._contentSrc;
+      this._contentSrc = '';
     }
   }
 
@@ -428,6 +431,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._syncPlayerVolume();
     if (this._adBreak) {
       event.payload.mute && this.dispatchEvent(EventType.AD_MUTED);
+    }
+  }
+
+  _onPlayerExitFullscreen(): void {
+    if (this._adBreak && this.player.config.playback.playsinline) {
+      this.play();
     }
   }
 
