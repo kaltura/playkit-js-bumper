@@ -306,10 +306,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
             this.eventManager.listenOnce(this._engine, EventType.ERROR, reject);
           });
         }
-      } else {
-        this.eventManager.listenOnce(this._bumperVideoElement, EventType.ENDED, resolve);
-        this.eventManager.listenOnce(this._bumperVideoElement, EventType.ERROR, reject);
       }
+      this.eventManager.listenOnce(this._bumperVideoElement, EventType.ENDED, resolve);
+      this.eventManager.listenOnce(this._bumperVideoElement, EventType.ERROR, reject);
     }).catch(() => {
       // silence the promise rejection, error is handled by the ad error event
     });
