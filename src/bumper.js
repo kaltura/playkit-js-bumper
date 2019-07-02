@@ -234,6 +234,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return this._bumperState;
   }
 
+  get adBreakPosition(): number {
+    return this._adBreakPosition;
+  }
+
   isPlayingAd(): boolean {
     return this._adBreak;
   }

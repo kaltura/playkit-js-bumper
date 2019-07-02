@@ -35,6 +35,17 @@ class BumperEngineDecorator {
     return true;
   }
   /**
+   * Get ended state.
+   * @returns {boolean} - The ended value of the engine.
+   * @public
+   * @override
+   * @instance
+   * @memberof BumperEngineDecorator
+   */
+  get ended(): boolean {
+    return this._plugin.adBreakPosition === -1;
+  }
+  /**
    * Get the current time in seconds.
    * @returns {number} - The current playback time.
    * @public
