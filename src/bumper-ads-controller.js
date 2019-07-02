@@ -58,7 +58,7 @@ class BumperAdsController implements IAdsPluginController {
    * @memberof BumperAdsController
    */
   get active(): boolean {
-    return this._context.isPlayingAd();
+    return this._context.isAdPlaying();
   }
 
   /**

@@ -16,7 +16,7 @@ class BumperEngineDecorator {
   }
 
   get active(): boolean {
-    return this._plugin.playOnMainVideoTag() && this._plugin.isPlayingAd();
+    return this._plugin.playOnMainVideoTag() && this._plugin.isAdPlaying();
   }
 
   dispatchEvent(event: FakeEvent): boolean {
