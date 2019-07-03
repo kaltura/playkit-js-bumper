@@ -25,7 +25,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@playkit-js/playkit-js": "0.47.0-canary.173edfb",
+    "@playkit-js/playkit-js": "0.49.0-canary.20b084c",
     "babel-cli": "^6.18.0",
     "babel-core": "^6.18.2",
     "babel-eslint": "^7.1.1",
@@ -74,7 +74,7 @@
     "webpack-dev-server": "latest"
   },
   "peerDependencies": {
-    "@playkit-js/playkit-js": "0.47.0-canary.173edfb"
+    "@playkit-js/playkit-js": "0.49.0-canary.20b084c"
   },
   "repository": {
     "type": "git",
