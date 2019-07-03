@@ -91,13 +91,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * Gets the engine decorator.
    * @param {IEngine} engine - The engine to decorate.
    * @public
-   * @returns {IEngine} - The ads api.
+   * @returns {IEngineDecorator} - The ads api.
    * @instance
    * @memberof Bumper
    */
-  getEngineDecorator(engine: IEngine): IEngine {
+  getEngineDecorator(engine: IEngine): IEngineDecorator {
     this._engine = engine;
-    // $FlowFixMe
     return new BumperEngineDecorator(engine, this);
   }
 

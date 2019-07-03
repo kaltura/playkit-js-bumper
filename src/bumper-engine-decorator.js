@@ -7,8 +7,9 @@ import {Bumper} from './bumper';
  * @class BumperEngineDecorator
  * @param {IEngine} engine - The engine.
  * @param {Bumper} plugin - The bumper plugin.
+ * @implements {IEngineDecorator}
  */
-class BumperEngineDecorator {
+class BumperEngineDecorator implements IEngineDecorator {
   _plugin: Bumper;
 
   constructor(engine: IEngine, plugin: Bumper) {
