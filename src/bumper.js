@@ -47,7 +47,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     url: '',
     clickThroughUrl: '',
     position: DEFAULT_POSITION,
-    disableMediaPreload: false
+    disableMediaPreload: false,
+    playOnMainVideoTag: false
   };
 
   /**
@@ -179,8 +180,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   playOnMainVideoTag(): boolean {
     return (
-      Env.os.name === 'iOS' &&
-      (!this.player.config.playback.playsinline || (this.player.isFullscreen() && !this.player.config.playback.inBrowserFullscreen))
+      this.config.playOnMainVideoTag || (Env.os.name === 'iOS' && (this.player.isFullscreen() && !this.player.config.playback.inBrowserFullscreen))
     );
   }
 
