@@ -1,9 +1,23 @@
 // @flow
 // import {BaseMiddleware, BasePlugin, EngineType, Error, getCapabilities, Utils} from '@playkit-js/playkit-js';
-import {BaseMiddleware, BasePlugin, Utils, EventType, Ad, AdBreak, AdBreakType, Error, FakeEvent} from '@playkit-js/playkit-js';
+import {
+  BaseMiddleware,
+  BasePlugin,
+  Utils,
+  Error,
+  FakeEvent,
+  EventType,
+  Ad,
+  AdBreak,
+  AdBreakType,
+  AudioTrack,
+  TextTrack,
+  Env
+} from '@playkit-js/playkit-js';
 import {BumperMiddleware} from './bumper-middleware';
 import {BumperState} from './bumper-state';
 import {BumperAdsController} from './bumper-ads-controller';
+import {BumperEngineDecorator} from './bumper-engine-decorator';
 import './assets/style.css';
 
 const BUMPER_CONTAINER_CLASS: string = 'playkit-bumper-container';
@@ -19,9 +33,10 @@ const DEFAULT_POSITION: Array<number> = [0, -1];
  * @param {Object} config - The plugin config.
  * @implements {IMiddlewareProvider}
  * @implements {IAdsControllerProvider}
+ * @implements {IEngineDecoratorProvider}
  * @extends BasePlugin
  */
-class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerProvider {
+class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerProvider, IEngineDecoratorProvider {
   /**
    * The default configuration of the plugin.
    * @type {Object}
@@ -32,7 +47,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     url: '',
     clickThroughUrl: '',
     position: DEFAULT_POSITION,
-    disableMediaPreload: false
+    disableMediaPreload: false,
+    playOnMainVideoTag: false
   };
 
   /**
@@ -52,6 +68,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _adBreak: boolean;
   _adBreakPosition: number;
   _bumperState: string;
+  _engine: IEngine;
+  _contentSrc: string;
+  _contentCurrentTime: number;
+  _contentDuration: number;
+  _selectedAudioTrack: AudioTrack;
+  _selectedTextTrack: TextTrack;
 
   /**
    * @constructor
@@ -64,6 +86,19 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._initBumperContainer();
     this._initMembers();
     this._addBindings();
+  }
+
+  /**
+   * Gets the engine decorator.
+   * @param {IEngine} engine - The engine to decorate.
+   * @public
+   * @returns {IEngineDecorator} - The ads api.
+   * @instance
+   * @memberof Bumper
+   */
+  getEngineDecorator(engine: IEngine): IEngineDecorator {
+    this._engine = engine;
+    return new BumperEngineDecorator(engine, this);
   }
 
   /**
@@ -82,7 +117,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @public
    * @returns {IAdsPluginController} - The ads api.
    * @instance
-   * @memberof Ima
+   * @memberof Bumper
    */
   getAdsController(): IAdsPluginController {
     return new BumperAdsController(this);
@@ -99,7 +134,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     if (this._bumperState === BumperState.IDLE) {
       this._load();
     }
-    this._bumperVideoElement.play();
+    this._adBreak = true;
+    this.playOnMainVideoTag() ? this._engine.play() : this._bumperVideoElement.play();
     this._hideElement(this._bumperCoverDiv);
   }
 
@@ -111,7 +147,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @memberof Bumper
    */
   pause(): void {
-    this._bumperVideoElement.pause();
+    this.playOnMainVideoTag() ? this._engine.pause() : this._bumperVideoElement.pause();
   }
 
   /**
@@ -142,6 +178,52 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._addBindings();
   }
 
+  playOnMainVideoTag(): boolean {
+    return (
+      this.config.playOnMainVideoTag || (Env.os.name === 'iOS' && (this.player.isFullscreen() && !this.player.config.playback.inBrowserFullscreen))
+    );
+  }
+
+  getContentTime(): number {
+    return this._contentCurrentTime;
+  }
+
+  getContentDuration(): number {
+    return this._contentDuration;
+  }
+
+  loadMedia(): void {
+    if (this.config.url) {
+      this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: this.config.position});
+    }
+  }
+
+  onEnded(): void {
+    if (this._adBreak) {
+      this._state = BumperState.LOADED;
+      this._adBreak = false;
+      this._hideElement(this._bumperContainerDiv);
+      this.dispatchEvent(EventType.AD_COMPLETED);
+      this.dispatchEvent(EventType.AD_BREAK_END);
+      if (this._adBreakPosition === 0) {
+        this._maybeSwitchToContent();
+      }
+      if (!this.config.position.includes(-1) || this._adBreakPosition === -1) {
+        this._state = BumperState.DONE;
+        this.dispatchEvent(EventType.ADS_COMPLETED);
+      }
+    }
+  }
+
+  onPlayerEnded(): void {
+    if (this._bumperState !== BumperState.DONE) {
+      this._adBreakPosition = -1;
+      this.playOnMainVideoTag() && (this._state = BumperState.IDLE);
+      this.initBumperCompletedPromise();
+      this.play();
+    }
+  }
+
   set _state(newState: string) {
     this.logger.debug(`Change state: ${this._bumperState || 'none'} => ${newState}`);
     this._bumperState = newState;
@@ -151,7 +233,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return this._bumperState;
   }
 
-  get adBreak(): boolean {
+  get adBreakPosition(): number {
+    return this._adBreakPosition;
+  }
+
+  isAdPlaying(): boolean {
     return this._adBreak;
   }
 
@@ -195,8 +281,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._validatePosition();
     this._adBreakPosition = this.config.position[0];
     this.config.clickThroughUrl && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
+    this._contentSrc = '';
+    this._contentCurrentTime = 0;
+    this._contentDuration = NaN;
+    this._selectedAudioTrack = null;
+    this._selectedTextTrack = null;
     this._state = BumperState.IDLE;
-    this._initBumperCompletedPromise();
   }
 
   _validatePosition(): void {
@@ -206,8 +296,20 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }
   }
 
-  _initBumperCompletedPromise(): void {
+  initBumperCompletedPromise(): void {
+    this.logger.debug('Init bumper complete promise');
     this._bumperCompletedPromise = new Promise((resolve, reject) => {
+      if (this.playOnMainVideoTag()) {
+        if (this._engine) {
+          this.eventManager.listenOnce(this._engine, EventType.ENDED, resolve);
+          this.eventManager.listenOnce(this._engine, EventType.ERROR, reject);
+        } else {
+          this.eventManager.listenOnce(this.player, EventType.SOURCE_SELECTED, () => {
+            this.eventManager.listenOnce(this._engine, EventType.ENDED, resolve);
+            this.eventManager.listenOnce(this._engine, EventType.ERROR, reject);
+          });
+        }
+      }
       this.eventManager.listenOnce(this._bumperVideoElement, EventType.ENDED, resolve);
       this.eventManager.listenOnce(this._bumperVideoElement, EventType.ERROR, reject);
     }).catch(() => {
@@ -220,36 +322,42 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this._bumperVideoElement, EventType.LOADED_DATA, () => this._onLoadedData());
     this.eventManager.listen(this._bumperVideoElement, EventType.PLAYING, () => this._onPlaying());
     this.eventManager.listen(this._bumperVideoElement, EventType.PAUSE, () => this._onPause());
-    this.eventManager.listen(this._bumperVideoElement, EventType.ENDED, () => this._onEnded());
+    this.eventManager.listen(this._bumperVideoElement, EventType.ENDED, () => this.onEnded());
     this.eventManager.listen(this._bumperVideoElement, EventType.TIME_UPDATE, () => this._onTimeUpdate());
     this.eventManager.listen(this._bumperVideoElement, EventType.ERROR, () => this._onError());
     this.eventManager.listen(this._bumperVideoElement, EventType.WAITING, () => this._onWaiting());
     this.eventManager.listen(this._bumperVideoElement, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
+    this.eventManager.listen(this.player, EventType.SOURCE_SELECTED, () => this._onPlayerSourceSelected());
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
+    this.eventManager.listen(this.player, EventType.PLAYBACK_ENDED, () => this._onPlayerPlaybackEnded());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
+    this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
   }
 
   _onLoadStart(): void {
-    this._state = BumperState.LOADING;
+    this._adBreak && (this._state = BumperState.LOADING);
   }
 
   _onLoadedData(): void {
-    this._state = BumperState.LOADED;
-    this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
+    if (this._adBreak) {
+      this._state = BumperState.LOADED;
+      this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
+    }
   }
 
   _onPlaying(): void {
-    if (this._bumperState === BumperState.LOADED) {
-      this.dispatchEvent(EventType.AD_BREAK_START, {adBreak: this._getAdBreak()});
-      this.dispatchEvent(EventType.AD_STARTED, {ad: this._getAd()});
-      this._adBreak = true;
+    if (this._adBreak) {
+      if (this._bumperState === BumperState.LOADED) {
+        this.dispatchEvent(EventType.AD_BREAK_START, {adBreak: this._getAdBreak()});
+        this.dispatchEvent(EventType.AD_STARTED, {ad: this._getAd()});
+      }
+      if (this._bumperState === BumperState.PAUSED) {
+        this.dispatchEvent(EventType.AD_RESUMED);
+      }
+      this._state = BumperState.PLAYING;
+      this._showElement(this._bumperContainerDiv);
     }
-    if (this._bumperState === BumperState.PAUSED) {
-      this.dispatchEvent(EventType.AD_RESUMED);
-    }
-    this._state = BumperState.PLAYING;
-    this._showElement(this._bumperContainerDiv);
   }
 
   _onPause(): void {
@@ -259,50 +367,63 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }
   }
 
-  _onEnded(): void {
-    this._state = BumperState.LOADED;
-    this._adBreak = false;
-    this._hideElement(this._bumperContainerDiv);
-    this.dispatchEvent(EventType.AD_COMPLETED);
-    this.dispatchEvent(EventType.AD_BREAK_END);
-    if (!this.config.position.includes(-1) || this._adBreakPosition === -1) {
-      this._state = BumperState.DONE;
-      this.dispatchEvent(EventType.ADS_COMPLETED);
-    }
-  }
-
   _onTimeUpdate(): void {
-    this.dispatchEvent(EventType.AD_PROGRESS, {
-      adProgress: {
-        currentTime: this._bumperVideoElement.currentTime,
-        duration: this._bumperVideoElement.duration
-      }
-    });
+    this._adBreak &&
+      this.dispatchEvent(EventType.AD_PROGRESS, {
+        adProgress: {
+          currentTime: this.playOnMainVideoTag() ? this._engine.currentTime : this._bumperVideoElement.currentTime,
+          duration: this.playOnMainVideoTag() ? this._engine.duration : this._bumperVideoElement.duration
+        }
+      });
   }
 
   _onError(): void {
-    this._state = BumperState.DONE;
-    this.dispatchEvent(EventType.AD_ERROR, this._getAdError());
-  }
-
-  _onWaiting(): void {
-    this.dispatchEvent(EventType.AD_BUFFERING);
-  }
-
-  _onVolumeChange(): void {
     if (this._adBreak) {
-      this.dispatchEvent(EventType.AD_VOLUME_CHANGED);
+      this._adBreak = false;
+      this._state = BumperState.DONE;
+      this.dispatchEvent(EventType.AD_ERROR, this._getAdError());
     }
   }
 
-  loadMedia(): void {
-    if (this.config.url) {
-      this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: this.config.position});
+  _onWaiting(): void {
+    this._adBreak && this.dispatchEvent(EventType.AD_BUFFERING);
+  }
+
+  _onVolumeChange(): void {
+    this._adBreak && this.dispatchEvent(EventType.AD_VOLUME_CHANGED);
+  }
+
+  _onPlayerSourceSelected(): void {
+    if (this.playOnMainVideoTag()) {
+      this.eventManager.listen(this._engine, EventType.LOAD_START, () => this._onLoadStart());
+      this.eventManager.listen(this._engine, EventType.LOADED_DATA, () => this._onLoadedData());
+      this.eventManager.listen(this._engine, EventType.PLAYING, () => this._onPlaying());
+      this.eventManager.listen(this._engine, EventType.PAUSE, () => this._onPause());
+      this.eventManager.listen(this._engine, EventType.TIME_UPDATE, () => this._onTimeUpdate());
+      this.eventManager.listen(this._engine, EventType.ERROR, () => this._onError());
+      this.eventManager.listen(this._engine, EventType.WAITING, () => this._onWaiting());
+      this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
     }
   }
 
   _onPlayerPlaybackStart(): void {
     this._bumperVideoElement.load();
+  }
+
+  _onPlayerPlaybackEnded(): void {
+    this._maybeSwitchToContent();
+  }
+
+  _maybeSwitchToContent(): void {
+    if (this._contentSrc && this.player.getVideoElement().src === this.config.url) {
+      this.logger.debug('Switch source to content url');
+      this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
+        this.player.selectTrack(this._selectedAudioTrack);
+        this.player.selectTrack(this._selectedTextTrack);
+      });
+      this.player.getVideoElement().src = this._contentSrc;
+      this._contentSrc = '';
+    }
   }
 
   _onPlayerVolumeChange(): void {
@@ -316,10 +437,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }
   }
 
-  _onPlayerEnded(): void {
-    if (this._bumperState !== BumperState.DONE) {
-      this._adBreakPosition = -1;
-      this._initBumperCompletedPromise();
+  _onPlayerExitFullscreen(): void {
+    if (this._adBreak && this.player.config.playback.playsinline) {
       this.play();
     }
   }
@@ -342,8 +461,18 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _load(): void {
-    this._bumperVideoElement.src = this.config.url;
-    this._bumperVideoElement.setAttribute('playsinline', '');
+    if (this.playOnMainVideoTag()) {
+      this.logger.debug('Switch source to bumper url');
+      this._contentSrc = this._engine.src;
+      this._contentCurrentTime = this._engine.currentTime;
+      this._contentDuration = this._engine.duration;
+      this._selectedAudioTrack = this.player.getActiveTracks().audio;
+      this._selectedTextTrack = this.player.getActiveTracks().text;
+      this.player.getVideoElement().src = this.config.url;
+    } else {
+      this._bumperVideoElement.src = this.config.url;
+      this._bumperVideoElement.setAttribute('playsinline', '');
+    }
   }
 
   _getAd(): Ad {

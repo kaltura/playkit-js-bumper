@@ -47,7 +47,7 @@ class BumperAdsController implements IAdsPluginController {
    * @memberof BumperAdsController
    */
   onPlaybackEnded(): Promise<void> {
-    this._context._onPlayerEnded();
+    this._context.onPlayerEnded();
     return this._context.complete();
   }
 
@@ -58,7 +58,7 @@ class BumperAdsController implements IAdsPluginController {
    * @memberof BumperAdsController
    */
   get active(): boolean {
-    return this._context.adBreak;
+    return this._context.isAdPlaying();
   }
 
   /**
