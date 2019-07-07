@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.0"></a>
+# [1.1.0](https://github.com/kaltura/playkit-js-bumper/compare/v1.0.3...v1.1.0) (2019-07-07)
+
+
+### Bug Fixes
+
+* **FEC-9228:** the bumper failed to be play correctly when bootstrap library using for the player ([#11](https://github.com/kaltura/playkit-js-bumper/issues/11)) ([7a3550b](https://github.com/kaltura/playkit-js-bumper/commit/7a3550b))
+
+
+### Features
+
+* **FEC-9145:** support non sibling video tags ([#10](https://github.com/kaltura/playkit-js-bumper/issues/10)) ([2dadc02](https://github.com/kaltura/playkit-js-bumper/commit/2dadc02))
+
+
+
 <a name="1.0.3"></a>
 ## [1.0.3](https://github.com/kaltura/playkit-js-bumper/compare/v1.0.2...v1.0.3) (2019-06-24)
 
