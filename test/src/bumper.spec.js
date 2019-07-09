@@ -27,11 +27,17 @@ function validateAdParams(event) {
   event.payload.ad.id.should.equal('1234');
   event.payload.ad.clickThroughUrl.should.equal('some/url');
   event.payload.ad.url.should.equal(BUMPER_URL);
+  Math.floor(event.payload.ad.duration).should.equal(4);
 }
 function validateAdBreakParams(event, isPreroll) {
   event.payload.adBreak.numAds.should.equal(1);
   isPreroll ? event.payload.adBreak.position.should.equal(0) : event.payload.adBreak.position.should.equal(-1);
   isPreroll ? event.payload.adBreak.type.should.equal('preroll') : event.payload.adBreak.type.should.equal('postroll');
+}
+
+function validateAdProgressParams(event) {
+  event.payload.adProgress.currentTime.should.be.gt(0);
+  Math.floor(event.payload.adProgress.duration).should.equal(4);
 }
 
 describe('Bumper', () => {
@@ -55,8 +61,7 @@ describe('Bumper', () => {
             eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
               validateAdParams(event);
               eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
-                event.payload.adProgress.currentTime.should.exists;
-                event.payload.adProgress.duration.should.exists;
+                validateAdProgressParams(event);
                 eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
                   eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
                     eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
@@ -67,7 +72,8 @@ describe('Bumper', () => {
                               validateAdBreakParams(event, false);
                               eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
                                 validateAdParams(event);
-                                eventManager.listenOnce(player, player.Event.AD_PROGRESS, () => {
+                                eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
+                                  validateAdProgressParams(event);
                                   eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
                                     eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
                                       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
@@ -202,6 +208,25 @@ describe('Bumper', () => {
       });
       player.play();
     });
+
+    it('Should not trigger AD_PAUSED on finish', done => {
+      eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
+        done(new Error('AD_PAUSED should not triggered on finish'));
+      });
+      eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
+        done();
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [0],
+            disableMediaPreload: true
+          }
+        },
+        sources
+      });
+      player.play();
+    });
   });
 
   describe('Non sibling video tags', () => {
@@ -222,8 +247,7 @@ describe('Bumper', () => {
             eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
               validateAdParams(event);
               eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
-                event.payload.adProgress.currentTime.should.exists;
-                event.payload.adProgress.duration.should.exists;
+                validateAdProgressParams(event);
                 eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
                   eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
                     eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
@@ -234,7 +258,8 @@ describe('Bumper', () => {
                               validateAdBreakParams(event, false);
                               eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
                                 validateAdParams(event);
-                                eventManager.listenOnce(player, player.Event.AD_PROGRESS, () => {
+                                eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
+                                  validateAdProgressParams(event);
                                   eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
                                     eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
                                       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
@@ -348,6 +373,25 @@ describe('Bumper', () => {
         plugins: {
           bumper: {
             position: [0]
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should not trigger AD_PAUSED on finish', done => {
+      eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
+        done(new Error('AD_PAUSED should not triggered on finish'));
+      });
+      eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
+        done();
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [0],
+            disableMediaPreload: true
           }
         },
         sources

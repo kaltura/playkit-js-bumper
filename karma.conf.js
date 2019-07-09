@@ -37,7 +37,7 @@ module.exports = function(config) {
     client: {
       mocha: {
         reporter: 'html',
-        timeout: 15000
+        timeout: 11000
       }
     }
   };
