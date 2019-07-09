@@ -135,7 +135,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._load();
     }
     this._adBreak = true;
-    this.playOnMainVideoTag() ? this._engine.play() : this._bumperVideoElement.play();
+    this._videoElement.play();
     this._hideElement(this._bumperCoverDiv);
   }
 
@@ -147,7 +147,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @memberof Bumper
    */
   pause(): void {
-    this.playOnMainVideoTag() ? this._engine.pause() : this._bumperVideoElement.pause();
+    this._videoElement.pause();
   }
 
   /**
