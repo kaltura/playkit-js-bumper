@@ -367,7 +367,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }
   }
 
-  get _videoElement(): HTMLVideoElement {
+  get _videoElement(): IEngine | HTMLVideoElement {
     return this.playOnMainVideoTag() ? this._engine : this._bumperVideoElement;
   }
 
