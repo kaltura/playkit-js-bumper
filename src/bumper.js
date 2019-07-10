@@ -46,6 +46,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     id: '',
     url: '',
     clickThroughUrl: '',
+    preload: false,
     position: DEFAULT_POSITION,
     disableMediaPreload: false,
     playOnMainVideoTag: false
@@ -317,16 +318,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     });
   }
 
-  _addBindings() {
-    this.eventManager.listen(this._bumperVideoElement, EventType.LOAD_START, () => this._onLoadStart());
-    this.eventManager.listen(this._bumperVideoElement, EventType.LOADED_DATA, () => this._onLoadedData());
-    this.eventManager.listen(this._bumperVideoElement, EventType.PLAYING, () => this._onPlaying());
-    this.eventManager.listen(this._bumperVideoElement, EventType.PAUSE, () => this._onPause());
+  _addBindings(): void {
     this.eventManager.listen(this._bumperVideoElement, EventType.ENDED, () => this.onEnded());
-    this.eventManager.listen(this._bumperVideoElement, EventType.TIME_UPDATE, () => this._onTimeUpdate());
-    this.eventManager.listen(this._bumperVideoElement, EventType.ERROR, () => this._onError());
-    this.eventManager.listen(this._bumperVideoElement, EventType.WAITING, () => this._onWaiting());
-    this.eventManager.listen(this._bumperVideoElement, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
     this.eventManager.listen(this.player, EventType.SOURCE_SELECTED, () => this._onPlayerSourceSelected());
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.PLAYBACK_ENDED, () => this._onPlayerPlaybackEnded());
@@ -336,14 +329,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onLoadStart(): void {
-    this._adBreak && (this._state = BumperState.LOADING);
+    this._state = BumperState.LOADING;
   }
 
   _onLoadedData(): void {
-    if (this._adBreak) {
-      this._state = BumperState.LOADED;
-      this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
-    }
+    this._state = BumperState.LOADED;
+    this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
   }
 
   _onPlaying(): void {
@@ -398,15 +389,15 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPlayerSourceSelected(): void {
-    if (this.playOnMainVideoTag()) {
-      this.eventManager.listen(this._engine, EventType.LOAD_START, () => this._onLoadStart());
-      this.eventManager.listen(this._engine, EventType.LOADED_DATA, () => this._onLoadedData());
-      this.eventManager.listen(this._engine, EventType.PLAYING, () => this._onPlaying());
-      this.eventManager.listen(this._engine, EventType.PAUSE, () => this._onPause());
-      this.eventManager.listen(this._engine, EventType.TIME_UPDATE, () => this._onTimeUpdate());
-      this.eventManager.listen(this._engine, EventType.ERROR, () => this._onError());
-      this.eventManager.listen(this._engine, EventType.WAITING, () => this._onWaiting());
-      this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
+    this.eventManager.listen(this._videoElement, EventType.PLAYING, () => this._onPlaying());
+    this.eventManager.listen(this._videoElement, EventType.PAUSE, () => this._onPause());
+    this.eventManager.listen(this._videoElement, EventType.TIME_UPDATE, () => this._onTimeUpdate());
+    this.eventManager.listen(this._videoElement, EventType.ERROR, () => this._onError());
+    this.eventManager.listen(this._videoElement, EventType.WAITING, () => this._onWaiting());
+    this.eventManager.listen(this._videoElement, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
+    if (this.config.preload) {
+      this.logger.debug('Preload the bumper');
+      this._load();
     }
   }
 
@@ -465,6 +456,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _load(): void {
+    this.eventManager.listenOnce(this._videoElement, EventType.LOAD_START, () => this._onLoadStart());
+    this.eventManager.listenOnce(this._videoElement, EventType.LOADED_DATA, () => this._onLoadedData());
     if (this.playOnMainVideoTag()) {
       this.logger.debug('Switch source to bumper url');
       this._contentSrc = this._engine.src;

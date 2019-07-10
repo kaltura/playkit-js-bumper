@@ -38,12 +38,12 @@ class BumperMiddleware extends BaseMiddleware {
         this._loadPlayer();
       }
     }
-    this._isFirstPlay = false;
     switch (this._context.state) {
       case BumperState.PLAYING:
         break;
-      case BumperState.IDLE: {
-        if (this._context.config.url && this._context.config.position.includes(0)) {
+      case BumperState.IDLE:
+      case BumperState.LOADED: {
+        if (this._isFirstPlay && this._context.config.url && this._context.config.position.includes(0)) {
           // preroll bumper
           this._context.initBumperCompletedPromise();
           this._context.play();
@@ -65,6 +65,7 @@ class BumperMiddleware extends BaseMiddleware {
         break;
       }
     }
+    this._isFirstPlay = false;
   }
 
   /**

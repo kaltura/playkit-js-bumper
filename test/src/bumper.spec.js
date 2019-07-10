@@ -227,6 +227,34 @@ describe('Bumper', () => {
       });
       player.play();
     });
+
+    it('Should pre load the bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
+        validateAdParams(event);
+        done();
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            preload: true
+          }
+        },
+        sources
+      });
+    });
+
+    it('Should not pre load the bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the bumper when no configured explicitly'));
+      });
+      player.configure({
+        plugins: {
+          bumper: {}
+        },
+        sources
+      });
+      setTimeout(done, 1000);
+    });
   });
 
   describe('Non sibling video tags', () => {
@@ -397,6 +425,34 @@ describe('Bumper', () => {
         sources
       });
       player.play();
+    });
+
+    it('Should pre load the bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
+        validateAdParams(event);
+        done();
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            preload: true
+          }
+        },
+        sources
+      });
+    });
+
+    it('Should not pre load the bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the bumper when no configured explicitly'));
+      });
+      player.configure({
+        plugins: {
+          bumper: {}
+        },
+        sources
+      });
+      setTimeout(done, 1000);
     });
   });
 });
