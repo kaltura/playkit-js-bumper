@@ -135,7 +135,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._load();
     }
     this._adBreak = true;
-    this.playOnMainVideoTag() ? this._engine.play() : this._bumperVideoElement.play();
+    this._videoElement.play();
     this._hideElement(this._bumperCoverDiv);
   }
 
@@ -147,7 +147,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @memberof Bumper
    */
   pause(): void {
-    this.playOnMainVideoTag() ? this._engine.pause() : this._bumperVideoElement.pause();
+    this._videoElement.pause();
   }
 
   /**
@@ -361,18 +361,22 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPause(): void {
-    if (this._bumperState === BumperState.PLAYING) {
+    if (this._bumperState === BumperState.PLAYING && !this._videoElement.ended) {
       this._state = BumperState.PAUSED;
       this.dispatchEvent(EventType.AD_PAUSED);
     }
+  }
+
+  get _videoElement(): IEngine | HTMLVideoElement {
+    return this.playOnMainVideoTag() ? this._engine : this._bumperVideoElement;
   }
 
   _onTimeUpdate(): void {
     this._adBreak &&
       this.dispatchEvent(EventType.AD_PROGRESS, {
         adProgress: {
-          currentTime: this.playOnMainVideoTag() ? this._engine.currentTime : this._bumperVideoElement.currentTime,
-          duration: this.playOnMainVideoTag() ? this._engine.duration : this._bumperVideoElement.duration
+          currentTime: this._videoElement.currentTime,
+          duration: this._videoElement.duration
         }
       });
   }
@@ -482,7 +486,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       contentType: '',
       title: '',
       position: 1,
-      duration: this._bumperVideoElement.duration,
+      duration: this._videoElement.duration,
       clickThroughUrl: this.config.clickThroughUrl,
       posterUrl: '',
       skipOffset: -1,
