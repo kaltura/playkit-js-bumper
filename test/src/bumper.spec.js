@@ -243,6 +243,22 @@ describe('Bumper', () => {
       });
     });
 
+    it('Should pre load the post bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
+        validateAdParams(event);
+        done();
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [-1],
+            preload: true
+          }
+        },
+        sources
+      });
+    });
+
     it('Should not pre load the bumper', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
         done(new Error('Should not pre load the bumper when no configured explicitly'));
@@ -292,6 +308,35 @@ describe('Bumper', () => {
         sources
       });
       setTimeout(() => player.play(), 1000);
+    });
+
+    it('Should avoid config invalid position', () => {
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [0]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [-1]}}});
+      player.plugins.bumper.config.position.should.deep.equal([-1]);
+      player.plugins.bumper._adBreakPosition.should.equal(-1);
+      player.configure({plugins: {bumper: {position: [0, -2]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [-2]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [-1, 0]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [0, 1, -1]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: []}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: null}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
     });
   });
 
@@ -478,6 +523,22 @@ describe('Bumper', () => {
         },
         sources
       });
+    });
+
+    it('Should not pre load the post bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the post bumper when playing on the main video tag'));
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [-1],
+            preload: true
+          }
+        },
+        sources
+      });
+      setTimeout(done, 1000);
     });
 
     it('Should not pre load the bumper', done => {

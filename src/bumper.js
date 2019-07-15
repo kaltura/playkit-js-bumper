@@ -90,6 +90,17 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   /**
+   * Updates the config of the plugin.
+   * @param {Object} update - The updated configuration.
+   * @public
+   * @returns {void}
+   */
+  updateConfig(update: Object): void {
+    super.updateConfig(update);
+    this._validatePosition();
+  }
+
+  /**
    * Gets the engine decorator.
    * @param {IEngine} engine - The engine to decorate.
    * @public
@@ -280,7 +291,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _initMembers(): void {
     this._adBreak = false;
     this._validatePosition();
-    this._adBreakPosition = this.config.position[0];
     this.config.clickThroughUrl && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
     this._contentSrc = '';
     this._contentCurrentTime = 0;
@@ -292,9 +302,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _validatePosition(): void {
     // position should be [0], [-1] or [0, -1]
-    if (this.config.position.length !== 1 || (this.config.position[0] !== 0 && this.config.position[0] !== -1)) {
+    if (!this.config.position || this.config.position.length !== 1 || (this.config.position[0] !== 0 && this.config.position[0] !== -1)) {
       this.config.position = DEFAULT_POSITION;
     }
+    this._adBreakPosition = this.config.position[0];
   }
 
   initBumperCompletedPromise(): void {
@@ -395,7 +406,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this._videoElement, EventType.ERROR, () => this._onError());
     this.eventManager.listen(this._videoElement, EventType.WAITING, () => this._onWaiting());
     this.eventManager.listen(this._videoElement, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
-    if (this.config.preload) {
+    if (this.config.preload && (this._adBreakPosition === 0 || !this.playOnMainVideoTag())) {
       this.logger.debug('Preload the bumper');
       this._load();
     }
