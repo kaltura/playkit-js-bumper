@@ -21,6 +21,17 @@ class BumperAdsController implements IAdsPluginController {
   }
 
   /**
+   * @public
+   * @returns {void}
+   * @memberof BumperAdsController
+   */
+  prepare(): void {
+    if (!this._context.playOnMainVideoTag() || (this._context.adBreakPosition === 0 && !this._context.player.getVideoElement().src)) {
+      this._context.load();
+    }
+  }
+
+  /**
    * Skip on an ad.
    * @public
    * @returns {void}
@@ -49,6 +60,16 @@ class BumperAdsController implements IAdsPluginController {
   onPlaybackEnded(): Promise<void> {
     this._context.onPlayerEnded();
     return this._context.complete();
+  }
+
+  /**
+   * Whether to prepare the bumper in advance
+   * @public
+   * @returns {void}
+   * @memberof BumperAdsController
+   */
+  get preload(): boolean {
+    return this._context.config.preload;
   }
 
   /**
