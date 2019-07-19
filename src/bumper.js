@@ -418,7 +418,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _maybeSwitchToContent(): void {
-    if (this._contentSrc && this.player.getVideoElement().src === this.config.url && !this.player.config.playAdsWithMSE) {
+    if (this._contentSrc && this.player.getVideoElement().src === this.config.url && !this.player.config.playback.playAdsWithMSE) {
       this.logger.debug('Switch source to content url');
       this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
         this.player.selectTrack(this._selectedAudioTrack);
