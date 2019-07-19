@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/kaltura/playkit-js-bumper/compare/v1.1.0...v1.2.0) (2019-07-19)
+
+
+### Bug Fixes
+
+* **FEC-9217:** Youbora fired adPause and adStop events when the bumper finished ([#12](https://github.com/kaltura/playkit-js-bumper/issues/12)) ([ca57203](https://github.com/kaltura/playkit-js-bumper/commit/ca57203))
+* playback rate returns to default after bumper ([#15](https://github.com/kaltura/playkit-js-bumper/issues/15)) ([4c0f9ee](https://github.com/kaltura/playkit-js-bumper/commit/4c0f9ee))
+
+
+### Features
+
+* **FEC-9159:** preload support ([#13](https://github.com/kaltura/playkit-js-bumper/issues/13)) ([e32a75d](https://github.com/kaltura/playkit-js-bumper/commit/e32a75d))
+
+
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/kaltura/playkit-js-bumper/compare/v1.0.3...v1.1.0) (2019-07-07)
 
