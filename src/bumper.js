@@ -204,6 +204,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   loadMedia(): void {
     if (this.config.url) {
       this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: this.config.position});
+    } else {
+      this._state = BumperState.DONE;
     }
   }
 
