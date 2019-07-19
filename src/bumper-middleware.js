@@ -1,5 +1,5 @@
 // @flow
-import {BaseMiddleware} from '@playkit-js/playkit-js';
+import {BaseMiddleware, EventType} from '@playkit-js/playkit-js';
 import {Bumper} from './bumper';
 import {BumperState} from './bumper-state';
 
@@ -21,7 +21,7 @@ class BumperMiddleware extends BaseMiddleware {
     super();
     this._context = context;
     this._isFirstPlay = true;
-    context.player.addEventListener(context.player.Event.CHANGE_SOURCE_STARTED, () => {
+    this._context.player.addEventListener(EventType.CHANGE_SOURCE_STARTED, () => {
       this._isFirstPlay = true;
       this._nextLoad = null;
     });
