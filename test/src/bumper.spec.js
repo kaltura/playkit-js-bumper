@@ -227,6 +227,117 @@ describe('Bumper', () => {
       });
       player.play();
     });
+
+    it('Should pre load the bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
+        validateAdParams(event);
+        done();
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            preload: true
+          }
+        },
+        sources
+      });
+    });
+
+    it('Should pre load the post bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
+        validateAdParams(event);
+        done();
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [-1],
+            preload: true
+          }
+        },
+        sources
+      });
+    });
+
+    it('Should not pre load the bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the bumper when no configured explicitly'));
+      });
+      player.configure({sources});
+      setTimeout(done, 1000);
+    });
+
+    it('Should fire AD_LOADED once - preload false', done => {
+      let counter = 0;
+      eventManager.listen(player, player.Event.AD_LOADED, () => {
+        counter++;
+      });
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.ENDED, () => {
+          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+            counter.should.equal(1);
+            done();
+          });
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({sources});
+      setTimeout(() => player.play(), 1000);
+    });
+
+    it('Should fire AD_LOADED once - preload true', done => {
+      let counter = 0;
+      eventManager.listen(player, player.Event.AD_LOADED, () => {
+        counter++;
+      });
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.ENDED, () => {
+          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+            counter.should.equal(1);
+            done();
+          });
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            preload: true
+          }
+        },
+        sources
+      });
+      setTimeout(() => player.play(), 1000);
+    });
+
+    it('Should avoid config invalid position', () => {
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [0]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [-1]}}});
+      player.plugins.bumper.config.position.should.deep.equal([-1]);
+      player.plugins.bumper._adBreakPosition.should.equal(-1);
+      player.configure({plugins: {bumper: {position: [0, -2]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [-2]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [-1, 0]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: [0, 1, -1]}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: []}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.configure({plugins: {bumper: {position: null}}});
+      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
+      player.plugins.bumper._adBreakPosition.should.equal(0);
+    });
   });
 
   describe('Non sibling video tags', () => {
@@ -397,6 +508,88 @@ describe('Bumper', () => {
         sources
       });
       player.play();
+    });
+
+    it('Should pre load the bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
+        validateAdParams(event);
+        done();
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            preload: true
+          }
+        },
+        sources
+      });
+    });
+
+    it('Should not pre load the post bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the post bumper when playing on the main video tag'));
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [-1],
+            preload: true
+          }
+        },
+        sources
+      });
+      setTimeout(done, 1000);
+    });
+
+    it('Should not pre load the bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the bumper when no configured explicitly'));
+      });
+      player.configure({sources});
+      setTimeout(done, 1000);
+    });
+
+    it('Should fire AD_LOADED twice - preload false', done => {
+      let counter = 0;
+      eventManager.listen(player, player.Event.AD_LOADED, () => {
+        counter++;
+      });
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.ENDED, () => {
+          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+            counter.should.equal(2);
+            done();
+          });
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({sources});
+      setTimeout(() => player.play(), 1000);
+    });
+
+    it('Should fire AD_LOADED twice - preload true', done => {
+      let counter = 0;
+      eventManager.listen(player, player.Event.AD_LOADED, () => {
+        counter++;
+      });
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.ENDED, () => {
+          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+            counter.should.equal(2);
+            done();
+          });
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            preload: true
+          }
+        },
+        sources
+      });
+      setTimeout(() => player.play(), 1000);
     });
   });
 });
