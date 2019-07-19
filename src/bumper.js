@@ -46,7 +46,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     id: '',
     url: '',
     clickThroughUrl: '',
-    preload: false,
     position: DEFAULT_POSITION,
     disableMediaPreload: false,
     playOnMainVideoTag: false
@@ -339,10 +338,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
   }
 
-  _onLoadStart(): void {
-    this._state = BumperState.LOADING;
-  }
-
   _onLoadedData(): void {
     this._state = BumperState.LOADED;
     this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
@@ -467,7 +462,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _load(): void {
-    this.eventManager.listenOnce(this._videoElement, EventType.LOAD_START, () => this._onLoadStart());
+    this._state = BumperState.LOADING;
     this.eventManager.listenOnce(this._videoElement, EventType.LOADED_DATA, () => this._onLoadedData());
     if (this.playOnMainVideoTag()) {
       this.logger.debug('Switch source to bumper url');

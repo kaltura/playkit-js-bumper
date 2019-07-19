@@ -1,5 +1,5 @@
 // @flow
-import {BaseMiddleware, EventType} from '@playkit-js/playkit-js';
+import {BaseMiddleware} from '@playkit-js/playkit-js';
 import {Bumper} from './bumper';
 import {BumperState} from './bumper-state';
 
@@ -11,6 +11,7 @@ class BumperMiddleware extends BaseMiddleware {
   id: string = 'BumperMiddleware';
   _context: Bumper;
   _isFirstPlay: boolean;
+  _nextLoad: ?Function;
 
   /**
    * @constructor
@@ -20,7 +21,25 @@ class BumperMiddleware extends BaseMiddleware {
     super();
     this._context = context;
     this._isFirstPlay = true;
-    this._context.player.addEventListener(EventType.CHANGE_SOURCE_STARTED, () => (this._isFirstPlay = true));
+    context.player.addEventListener(context.player.Event.CHANGE_SOURCE_STARTED, () => {
+      this._isFirstPlay = true;
+      this._nextLoad = null;
+    });
+  }
+
+  /**
+   * Load middleware handler.
+   * @param {Function} next - The load play handler in the middleware chain.
+   * @returns {void}
+   */
+  load(next: Function): void {
+    this._nextLoad = next;
+    if (!this._context.playOnMainVideoTag() || (this._context.adBreakPosition === 0 && !this._context.player.getVideoElement().src)) {
+      this._context.load();
+    }
+    if (!(this._context.config.url && this._context.config.position.includes(0))) {
+      this._callNextLoad();
+    }
   }
 
   /**
@@ -35,13 +54,14 @@ class BumperMiddleware extends BaseMiddleware {
           this._context.player.getVideoElement().load();
         }
       } else {
-        this._loadPlayer();
+        this._callNextLoad();
       }
     }
     switch (this._context.state) {
       case BumperState.PLAYING:
         break;
       case BumperState.IDLE:
+      case BumperState.LOADING:
       case BumperState.LOADED: {
         if (this._isFirstPlay && this._context.config.url && this._context.config.position.includes(0)) {
           // preroll bumper
@@ -88,17 +108,11 @@ class BumperMiddleware extends BaseMiddleware {
     }
   }
 
-  _loadPlayer(): void {
-    const loadPlayer = () => {
-      this._context.logger.debug('Load player by bumper middleware');
-      this._context.player.load();
-    };
-    if (this._context.player.engineType) {
-      // player has source to play
-      loadPlayer();
-    } else {
-      this._context.player.addEventListener(EventType.SOURCE_SELECTED, () => loadPlayer());
+  _callNextLoad(): void {
+    if (this._nextLoad && !(this._context.playOnMainVideoTag() || this._context.config.disableMediaPreload)) {
+      this.callNext(this._nextLoad);
     }
+    this._nextLoad = null;
   }
 }
 
