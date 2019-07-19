@@ -29,13 +29,14 @@ class BumperMiddleware extends BaseMiddleware {
    * @returns {void}
    */
   play(next: Function): void {
-    if (
-      this._isFirstPlay &&
-      this._context.player.config.playback.disableMediaPreloadWhileAd &&
-      !this._context.playOnMainVideoTag() &&
-      !this._context.player.getVideoElement().src
-    ) {
-      this._context.player.getVideoElement().load();
+    if (this._isFirstPlay && !this._context.playOnMainVideoTag()) {
+      if (this._context.config.disableMediaPreload) {
+        if (!this._context.player.getVideoElement().src) {
+          this._context.player.getVideoElement().load();
+        }
+      } else {
+        this._loadPlayer();
+      }
     }
     switch (this._context.state) {
       case BumperState.PLAYING:
@@ -84,6 +85,19 @@ class BumperMiddleware extends BaseMiddleware {
         this.callNext(next);
         break;
       }
+    }
+  }
+
+  _loadPlayer(): void {
+    const loadPlayer = () => {
+      this._context.logger.debug('Load player by bumper middleware');
+      this._context.player.load();
+    };
+    if (this._context.player.engineType) {
+      // player has source to play
+      loadPlayer();
+    } else {
+      this._context.player.addEventListener(EventType.SOURCE_SELECTED, () => loadPlayer());
     }
   }
 }
