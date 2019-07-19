@@ -74,6 +74,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _contentDuration: number;
   _selectedAudioTrack: AudioTrack;
   _selectedTextTrack: TextTrack;
+  _selectedPlaybackRate: number;
 
   /**
    * @constructor
@@ -296,6 +297,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._contentDuration = NaN;
     this._selectedAudioTrack = null;
     this._selectedTextTrack = null;
+    this._selectedPlaybackRate = 1;
     this._state = BumperState.IDLE;
   }
 
@@ -421,6 +423,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
         this.player.selectTrack(this._selectedAudioTrack);
         this.player.selectTrack(this._selectedTextTrack);
+        this.player.playbackRate = this._selectedPlaybackRate;
       });
       this.player.getVideoElement().src = this._contentSrc;
       this._contentSrc = '';
@@ -472,6 +475,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
         this._contentDuration = this._engine.duration;
         this._selectedAudioTrack = this.player.getActiveTracks().audio;
         this._selectedTextTrack = this.player.getActiveTracks().text;
+        this._selectedPlaybackRate = this.player.playbackRate;
         this.player.getVideoElement().src = this.config.url;
       } else {
         this._bumperVideoElement.src = this.config.url;
