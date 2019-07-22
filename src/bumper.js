@@ -342,7 +342,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _onLoadedData(): void {
     this._state = BumperState.LOADED;
-    this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
   }
 
   _onPlaying(): void {
@@ -418,7 +417,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _maybeSwitchToContent(): void {
-    if (this._contentSrc && this.player.getVideoElement().src === this.config.url) {
+    if (this._contentSrc && this.player.getVideoElement().src === this.config.url && !this.player.config.playback.playAdsWithMSE) {
       this.logger.debug('Switch source to content url');
       this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
         this.player.selectTrack(this._selectedAudioTrack);
@@ -466,6 +465,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   load(): void {
     if (this._bumperState === BumperState.IDLE) {
+      this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
       this._state = BumperState.LOADING;
       this.eventManager.listenOnce(this._videoElement, EventType.LOADED_DATA, () => this._onLoadedData());
       if (this.playOnMainVideoTag()) {
