@@ -22,12 +22,12 @@ const BUMPER_URL =
     ]
   };
 
-function validateAdParams(event) {
+function validateAdParams(event, isAdDataLoaded) {
   event.payload.ad.bumper.should.be.true;
   event.payload.ad.id.should.equal('1234');
   event.payload.ad.clickThroughUrl.should.equal('some/url');
   event.payload.ad.url.should.equal(BUMPER_URL);
-  Math.floor(event.payload.ad.duration).should.equal(4);
+  isAdDataLoaded ? Math.floor(event.payload.ad.duration).should.equal(4) : null;
 }
 function validateAdBreakParams(event, isPreroll) {
   event.payload.adBreak.numAds.should.equal(1);
@@ -55,11 +55,11 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
         event.payload.adBreaksPosition.should.deep.equal([0, -1]);
         eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-          validateAdParams(event);
+          validateAdParams(event, false);
           eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
             validateAdBreakParams(event, true);
             eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-              validateAdParams(event);
+              validateAdParams(event, true);
               eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
                 validateAdProgressParams(event);
                 eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
@@ -71,7 +71,7 @@ describe('Bumper', () => {
                             eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
                               validateAdBreakParams(event, false);
                               eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-                                validateAdParams(event);
+                                validateAdParams(event, true);
                                 eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
                                   validateAdProgressParams(event);
                                   eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
@@ -230,7 +230,7 @@ describe('Bumper', () => {
 
     it('Should pre load the bumper', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-        validateAdParams(event);
+        validateAdParams(event, false);
         done();
       });
       player.configure({
@@ -245,7 +245,7 @@ describe('Bumper', () => {
 
     it('Should pre load the post bumper', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-        validateAdParams(event);
+        validateAdParams(event, false);
         done();
       });
       player.configure({
@@ -351,12 +351,12 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
         event.payload.adBreaksPosition.should.deep.equal([0, -1]);
         eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-          player.getVideoElement().src.should.equal(BUMPER_URL);
-          validateAdParams(event);
+          validateAdParams(event, false);
           eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
+            player.getVideoElement().src.should.equal(BUMPER_URL);
             validateAdBreakParams(event, true);
             eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-              validateAdParams(event);
+              validateAdParams(event, true);
               eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
                 validateAdProgressParams(event);
                 eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
@@ -368,7 +368,7 @@ describe('Bumper', () => {
                             eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
                               validateAdBreakParams(event, false);
                               eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-                                validateAdParams(event);
+                                validateAdParams(event, true);
                                 eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
                                   validateAdProgressParams(event);
                                   eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
@@ -512,7 +512,7 @@ describe('Bumper', () => {
 
     it('Should pre load the bumper', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-        validateAdParams(event);
+        validateAdParams(event, false);
         done();
       });
       player.configure({
