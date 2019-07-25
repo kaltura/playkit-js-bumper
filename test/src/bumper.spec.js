@@ -338,6 +338,90 @@ describe('Bumper', () => {
       player.plugins.bumper.config.position.should.deep.equal([0, -1]);
       player.plugins.bumper._adBreakPosition.should.equal(0);
     });
+
+    it('Should handle invalid bumper url', done => {
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
+          done();
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should handle invalid pre bumper url', done => {
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
+          done();
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [0],
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should handle invalid post bumper url', done => {
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
+          done();
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [-1],
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should play post bumper even the pre bumper is failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+        eventManager.listenOnce(player, player.Event.PLAYING, () => {
+          eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
+            validateAdParams(event, true);
+            done();
+          });
+          player.configure({
+            plugins: {
+              bumper: {
+                url: BUMPER_URL
+              }
+            }
+          });
+          player.currentTime = player.duration;
+        });
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
   });
 
   describe('Non sibling video tags', () => {
@@ -376,7 +460,9 @@ describe('Bumper', () => {
                                       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
                                         eventManager.listenOnce(player, player.Event.AD_BREAK_END, () => {
                                           eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-                                            done();
+                                            eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
+                                              done();
+                                            });
                                           });
                                         });
                                       });
@@ -590,6 +676,90 @@ describe('Bumper', () => {
         sources
       });
       setTimeout(() => player.play(), 1000);
+    });
+
+    it('Should handle invalid bumper url', done => {
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
+          done();
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should handle invalid pre bumper url', done => {
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
+          done();
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [0],
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should handle invalid post bumper url', done => {
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
+          done();
+        });
+        player.currentTime = player.duration;
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [-1],
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should play post bumper even the pre bumper is failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+        eventManager.listenOnce(player, player.Event.PLAYING, () => {
+          eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
+            validateAdParams(event, true);
+            done();
+          });
+          player.configure({
+            plugins: {
+              bumper: {
+                url: BUMPER_URL
+              }
+            }
+          });
+          player.currentTime = player.duration;
+        });
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
     });
   });
 });
