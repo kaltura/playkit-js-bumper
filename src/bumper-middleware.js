@@ -63,7 +63,7 @@ class BumperMiddleware extends BaseMiddleware {
       case BumperState.IDLE:
       case BumperState.LOADING:
       case BumperState.LOADED: {
-        if (this._isFirstPlay && this._context.config.url && this._context.config.position.includes(0)) {
+        if (this._context.config.url && this._context.adBreakPosition === 0) {
           // preroll bumper
           this._context.initBumperCompletedPromise();
           this._context.play();

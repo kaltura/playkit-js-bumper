@@ -234,10 +234,8 @@ describe('Bumper', () => {
         done();
       });
       player.configure({
-        plugins: {
-          bumper: {
-            preload: true
-          }
+        playback: {
+          preload: 'auto'
         },
         sources
       });
@@ -249,10 +247,12 @@ describe('Bumper', () => {
         done();
       });
       player.configure({
+        playback: {
+          preload: 'auto'
+        },
         plugins: {
           bumper: {
-            position: [-1],
-            preload: true
+            position: [-1]
           }
         },
         sources
@@ -300,10 +300,8 @@ describe('Bumper', () => {
         player.currentTime = player.duration;
       });
       player.configure({
-        plugins: {
-          bumper: {
-            preload: true
-          }
+        playback: {
+          preload: 'auto'
         },
         sources
       });
@@ -420,6 +418,17 @@ describe('Bumper', () => {
         },
         sources
       });
+      player.play();
+    });
+
+    it('Should call to player play after pre bumper finish', done => {
+      eventManager.listenOnce(player, player.Event.AD_BREAK_END, () => {
+        eventManager.listenOnce(player, player.Event.PLAY, () => {
+          done();
+        });
+      });
+      player.configure({sources});
+      player.play();
       player.play();
     });
   });
@@ -602,10 +611,8 @@ describe('Bumper', () => {
         done();
       });
       player.configure({
-        plugins: {
-          bumper: {
-            preload: true
-          }
+        playback: {
+          preload: 'auto'
         },
         sources
       });
@@ -616,10 +623,12 @@ describe('Bumper', () => {
         done(new Error('Should not pre load the post bumper when playing on the main video tag'));
       });
       player.configure({
+        playback: {
+          preload: 'auto'
+        },
         plugins: {
           bumper: {
-            position: [-1],
-            preload: true
+            position: [-1]
           }
         },
         sources
@@ -668,10 +677,8 @@ describe('Bumper', () => {
         player.currentTime = player.duration;
       });
       player.configure({
-        plugins: {
-          bumper: {
-            preload: true
-          }
+        playback: {
+          preload: 'auto'
         },
         sources
       });
