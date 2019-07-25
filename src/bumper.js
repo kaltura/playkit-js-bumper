@@ -220,10 +220,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       if (this._adBreakPosition === 0) {
         this._maybeSwitchToContent();
       }
-      if (!this.config.position.includes(-1) || this._adBreakPosition === -1) {
-        this._state = BumperState.DONE;
-        this.dispatchEvent(EventType.ADS_COMPLETED);
-      }
+      this._maybeDispatchAdsCompleted();
     }
   }
 
@@ -380,10 +377,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onError(): void {
-    if (this._adBreak) {
+    if (this._adBreak || this._bumperState === BumperState.LOADING) {
       this._adBreak = false;
-      this._state = BumperState.DONE;
+      this._state = BumperState.IDLE;
       this.dispatchEvent(EventType.AD_ERROR, this._getAdError());
+      this._maybeDispatchAdsCompleted();
     }
   }
 
@@ -426,6 +424,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       });
       this.player.getVideoElement().src = this._contentSrc;
       this._contentSrc = '';
+    }
+  }
+
+  _maybeDispatchAdsCompleted(): void {
+    if (!this.config.position.includes(-1) || this._adBreakPosition === -1) {
+      this._state = BumperState.DONE;
+      this.dispatchEvent(EventType.ADS_COMPLETED);
     }
   }
 
