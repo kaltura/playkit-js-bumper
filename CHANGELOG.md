@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.3.1"></a>
+## [1.3.1](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.0...v1.3.1) (2019-07-28)
+
+
+### Bug Fixes
+
+* **FEC-9250:** when a wrong bumper url is configured, no replay icon is displayed in the end of the video ([#16](https://github.com/kaltura/playkit-js-bumper/issues/16)) ([a356bf3](https://github.com/kaltura/playkit-js-bumper/commit/a356bf3))
+* **FEC-9255:** the playback started during pre-bumper ([#17](https://github.com/kaltura/playkit-js-bumper/issues/17)) ([6f051f0](https://github.com/kaltura/playkit-js-bumper/commit/6f051f0))
+* **FEC-9265:** post bumper pre-loaded too early ([#18](https://github.com/kaltura/playkit-js-bumper/issues/18)) ([575ab86](https://github.com/kaltura/playkit-js-bumper/commit/575ab86))
+
+
+
 <a name="1.3.0"></a>
 # [1.3.0](https://github.com/kaltura/playkit-js-bumper/compare/v1.2.0...v1.3.0) (2019-07-22)
 
