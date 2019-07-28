@@ -53,15 +53,35 @@ describe('Bumper', () => {
   describe('Sibling video tags', () => {
     it('Should play pre and post bumper and fire events', done => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
-        event.payload.adBreaksPosition.should.deep.equal([0, -1]);
+        try {
+          event.payload.adBreaksPosition.should.deep.equal([0, -1]);
+        } catch (e) {
+          done(e);
+        }
         eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-          validateAdParams(event, false);
+          try {
+            validateAdParams(event, false);
+          } catch (e) {
+            done(e);
+          }
           eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
-            validateAdBreakParams(event, true);
+            try {
+              validateAdBreakParams(event, true);
+            } catch (e) {
+              done(e);
+            }
             eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-              validateAdParams(event, true);
+              try {
+                validateAdParams(event, true);
+              } catch (e) {
+                done(e);
+              }
               eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
-                validateAdProgressParams(event);
+                try {
+                  validateAdProgressParams(event);
+                } catch (e) {
+                  done(e);
+                }
                 eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
                   eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
                     eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
@@ -69,11 +89,23 @@ describe('Bumper', () => {
                         eventManager.listenOnce(player, player.Event.PLAYING, () => {
                           eventManager.listenOnce(player, player.Event.ENDED, () => {
                             eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
-                              validateAdBreakParams(event, false);
+                              try {
+                                validateAdBreakParams(event, false);
+                              } catch (e) {
+                                done(e);
+                              }
                               eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-                                validateAdParams(event, true);
+                                try {
+                                  validateAdParams(event, true);
+                                } catch (e) {
+                                  done(e);
+                                }
                                 eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
-                                  validateAdProgressParams(event);
+                                  try {
+                                    validateAdProgressParams(event);
+                                  } catch (e) {
+                                    done(e);
+                                  }
                                   eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
                                     eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
                                       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
@@ -110,9 +142,17 @@ describe('Bumper', () => {
 
     it('Should play pre roll only', done => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
-        event.payload.adBreaksPosition.should.deep.equal([0]);
+        try {
+          event.payload.adBreaksPosition.should.deep.equal([0]);
+        } catch (e) {
+          done(e);
+        }
         eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
-          validateAdBreakParams(event, true);
+          try {
+            validateAdBreakParams(event, true);
+          } catch (e) {
+            done(e);
+          }
           eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
             eventManager.listenOnce(player, player.Event.FIRST_PLAY, () => {
               done();
@@ -133,9 +173,17 @@ describe('Bumper', () => {
 
     it('Should play post roll only', done => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
-        event.payload.adBreaksPosition.should.deep.equal([-1]);
+        try {
+          event.payload.adBreaksPosition.should.deep.equal([-1]);
+        } catch (e) {
+          done(e);
+        }
         eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
-          validateAdBreakParams(event, false);
+          try {
+            validateAdBreakParams(event, false);
+          } catch (e) {
+            done(e);
+          }
           eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
             done();
           });
@@ -228,9 +276,13 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should pre load the bumper', done => {
+    it('Should pre load the bumper by config', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-        validateAdParams(event, false);
+        try {
+          validateAdParams(event, false);
+        } catch (e) {
+          done(e);
+        }
         done();
       });
       player.configure({
@@ -241,10 +293,17 @@ describe('Bumper', () => {
       });
     });
 
-    it('Should pre load the post bumper', done => {
-      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-        validateAdParams(event, false);
-        done();
+    it('Should not pre load the bumper by default', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the bumper when no configured explicitly'));
+      });
+      player.configure({sources});
+      setTimeout(done, 1000);
+    });
+
+    it('Should not pre load the post bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the post bumper'));
       });
       player.configure({
         playback: {
@@ -257,14 +316,31 @@ describe('Bumper', () => {
         },
         sources
       });
+      setTimeout(done, 1000);
     });
 
-    it('Should not pre load the bumper', done => {
-      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
-        done(new Error('Should not pre load the bumper when no configured explicitly'));
+    it('Should load the post bumper 3 seconds before the end', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
+        try {
+          validateAdParams(event, false);
+          player.currentTime.should.be.gt(player.duration - 3);
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
-      player.configure({sources});
-      setTimeout(done, 1000);
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [-1]
+          }
+        },
+        sources
+      });
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        player.currentTime = player.duration - 4;
+      });
+      player.play();
     });
 
     it('Should fire AD_LOADED once - preload false', done => {
@@ -275,8 +351,12 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.PLAYING, () => {
         eventManager.listenOnce(player, player.Event.ENDED, () => {
           eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-            counter.should.equal(1);
-            done();
+            try {
+              counter.should.equal(1);
+              done();
+            } catch (e) {
+              done(e);
+            }
           });
         });
         player.currentTime = player.duration;
@@ -293,8 +373,12 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.PLAYING, () => {
         eventManager.listenOnce(player, player.Event.ENDED, () => {
           eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-            counter.should.equal(1);
-            done();
+            try {
+              counter.should.equal(1);
+              done();
+            } catch (e) {
+              done(e);
+            }
           });
         });
         player.currentTime = player.duration;
@@ -397,8 +481,12 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
         eventManager.listenOnce(player, player.Event.PLAYING, () => {
           eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-            validateAdParams(event, true);
-            done();
+            try {
+              validateAdParams(event, true);
+              done();
+            } catch (e) {
+              done(e);
+            }
           });
           player.configure({
             plugins: {
@@ -442,16 +530,36 @@ describe('Bumper', () => {
     });
     it('Should play pre and post bumper and fire events', done => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
-        event.payload.adBreaksPosition.should.deep.equal([0, -1]);
+        try {
+          event.payload.adBreaksPosition.should.deep.equal([0, -1]);
+        } catch (e) {
+          done(e);
+        }
         eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-          validateAdParams(event, false);
+          try {
+            validateAdParams(event, false);
+          } catch (e) {
+            done(e);
+          }
           eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
-            player.getVideoElement().src.should.equal(BUMPER_URL);
-            validateAdBreakParams(event, true);
+            try {
+              player.getVideoElement().src.should.equal(BUMPER_URL);
+              validateAdBreakParams(event, true);
+            } catch (e) {
+              done(e);
+            }
             eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-              validateAdParams(event, true);
+              try {
+                validateAdParams(event, true);
+              } catch (e) {
+                done(e);
+              }
               eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
-                validateAdProgressParams(event);
+                try {
+                  validateAdProgressParams(event);
+                } catch (e) {
+                  done(e);
+                }
                 eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
                   eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
                     eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
@@ -459,11 +567,23 @@ describe('Bumper', () => {
                         eventManager.listenOnce(player, player.Event.PLAYING, () => {
                           eventManager.listenOnce(player, player.Event.ENDED, () => {
                             eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
-                              validateAdBreakParams(event, false);
+                              try {
+                                validateAdBreakParams(event, false);
+                              } catch (e) {
+                                done(e);
+                              }
                               eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-                                validateAdParams(event, true);
+                                try {
+                                  validateAdParams(event, true);
+                                } catch (e) {
+                                  done(e);
+                                }
                                 eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
-                                  validateAdProgressParams(event);
+                                  try {
+                                    validateAdProgressParams(event);
+                                  } catch (e) {
+                                    done(e);
+                                  }
                                   eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
                                     eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
                                       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
@@ -502,12 +622,16 @@ describe('Bumper', () => {
 
     it('Should mask the player api while pre bumper', done => {
       eventManager.listenOnce(player, player.Event.AD_PROGRESS, () => {
-        player.getVideoElement().src.should.equal(BUMPER_URL);
-        player.currentTime.should.equal(0);
-        isNaN(player.duration).should.be.true;
-        player.paused.should.be.true;
-        player.ended.should.be.false;
-        done();
+        try {
+          player.getVideoElement().src.should.equal(BUMPER_URL);
+          player.currentTime.should.equal(0);
+          isNaN(player.duration).should.be.true;
+          player.paused.should.be.true;
+          player.ended.should.be.false;
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
       player.configure({
         plugins: {
@@ -522,12 +646,16 @@ describe('Bumper', () => {
 
     it('Should mask the player api while post bumper', done => {
       eventManager.listenOnce(player, player.Event.AD_PROGRESS, () => {
-        player.getVideoElement().src.should.equal(BUMPER_URL);
-        player.currentTime.should.equal(149.95);
-        player.duration.should.equal(149.95);
-        player.paused.should.be.true;
-        player.ended.should.be.true;
-        done();
+        try {
+          player.getVideoElement().src.should.equal(BUMPER_URL);
+          player.currentTime.should.equal(149.95);
+          player.duration.should.equal(149.95);
+          player.paused.should.be.true;
+          player.ended.should.be.true;
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
       player.configure({
         plugins: {
@@ -554,8 +682,12 @@ describe('Bumper', () => {
         done(new Error('PLAYING should not triggered while bumper playing'));
       });
       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
-        player.getVideoElement().src.should.equal(BUMPER_URL);
-        done();
+        try {
+          player.getVideoElement().src.should.equal(BUMPER_URL);
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
       player.configure({
         plugins: {
@@ -570,7 +702,11 @@ describe('Bumper', () => {
 
     it('Should not load the content while the bumper', done => {
       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
-        player.getVideoElement().src.should.equal(BUMPER_URL);
+        try {
+          player.getVideoElement().src.should.equal(BUMPER_URL);
+        } catch (e) {
+          done(e);
+        }
         eventManager.listenOnce(player, player.Event.LOAD_START, () => {
           done();
         });
@@ -605,10 +741,14 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should pre load the bumper', done => {
+    it('Should pre load the bumper by config', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-        validateAdParams(event, false);
-        done();
+        try {
+          validateAdParams(event, false);
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
       player.configure({
         playback: {
@@ -618,9 +758,14 @@ describe('Bumper', () => {
       });
     });
 
-    it('Should not pre load the post bumper', done => {
+    it('Should not load the post bumper while playback', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
-        done(new Error('Should not pre load the post bumper when playing on the main video tag'));
+        try {
+          player.ended.should.be.true;
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
       player.configure({
         playback: {
@@ -633,10 +778,13 @@ describe('Bumper', () => {
         },
         sources
       });
-      setTimeout(done, 1000);
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        player.currentTime = player.duration - 2;
+      });
+      player.play();
     });
 
-    it('Should not pre load the bumper', done => {
+    it('Should not pre load the bumper by default', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
         done(new Error('Should not pre load the bumper when no configured explicitly'));
       });
@@ -652,8 +800,12 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.PLAYING, () => {
         eventManager.listenOnce(player, player.Event.ENDED, () => {
           eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-            counter.should.equal(2);
-            done();
+            try {
+              counter.should.equal(2);
+              done();
+            } catch (e) {
+              done(e);
+            }
           });
         });
         player.currentTime = player.duration;
@@ -670,8 +822,12 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.PLAYING, () => {
         eventManager.listenOnce(player, player.Event.ENDED, () => {
           eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-            counter.should.equal(2);
-            done();
+            try {
+              counter.should.equal(2);
+              done();
+            } catch (e) {
+              done(e);
+            }
           });
         });
         player.currentTime = player.duration;
@@ -745,8 +901,12 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
         eventManager.listenOnce(player, player.Event.PLAYING, () => {
           eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
-            validateAdParams(event, true);
-            done();
+            try {
+              validateAdParams(event, true);
+              done();
+            } catch (e) {
+              done(e);
+            }
           });
           player.configure({
             plugins: {

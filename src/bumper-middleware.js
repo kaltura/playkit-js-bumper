@@ -34,7 +34,7 @@ class BumperMiddleware extends BaseMiddleware {
    */
   load(next: Function): void {
     this._nextLoad = next;
-    if (!this._context.playOnMainVideoTag() || (this._context.adBreakPosition === 0 && !this._context.player.getVideoElement().src)) {
+    if (this._context.adBreakPosition === 0 && !(this._context.playOnMainVideoTag() && this._context.player.getVideoElement().src)) {
       this._context.load();
     }
     if (!(this._context.config.url && this._context.config.position.includes(0))) {

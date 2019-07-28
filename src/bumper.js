@@ -24,6 +24,7 @@ const BUMPER_CONTAINER_CLASS: string = 'playkit-bumper-container';
 const BUMPER_COVER_CLASS: string = 'playkit-bumper-cover';
 const BUMPER_CLICK_THROUGH_CLASS: string = 'playkit-bumper-click-through';
 const DEFAULT_POSITION: Array<number> = [0, -1];
+const TIME_FOR_PRELOAD: number = 3;
 
 /**
  * The bumper plugin.
@@ -332,6 +333,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.SOURCE_SELECTED, () => this._onPlayerSourceSelected());
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.PLAYBACK_ENDED, () => this._onPlayerPlaybackEnded());
+    this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => this._onPlayerTimeUpdate());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
     this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
@@ -409,6 +411,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _onPlayerPlaybackEnded(): void {
     this._maybeSwitchToContent();
+  }
+
+  _onPlayerTimeUpdate(): void {
+    if (this.player.currentTime >= this.player.duration - TIME_FOR_PRELOAD && !this.playOnMainVideoTag()) {
+      this.load();
+    }
   }
 
   _maybeSwitchToContent(): void {
