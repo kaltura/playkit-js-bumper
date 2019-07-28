@@ -228,7 +228,7 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should pre load the bumper', done => {
+    it('Should pre load the bumper by config', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
         validateAdParams(event, false);
         done();
@@ -241,10 +241,17 @@ describe('Bumper', () => {
       });
     });
 
-    it('Should pre load the post bumper', done => {
-      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
-        validateAdParams(event, false);
-        done();
+    it('Should not pre load the bumper by default', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the bumper when no configured explicitly'));
+      });
+      player.configure({sources});
+      setTimeout(done, 1000);
+    });
+
+    it('Should not pre load the post bumper', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+        done(new Error('Should not pre load the post bumper'));
       });
       player.configure({
         playback: {
@@ -257,14 +264,27 @@ describe('Bumper', () => {
         },
         sources
       });
+      setTimeout(done, 1000);
     });
 
-    it('Should not pre load the bumper', done => {
-      eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
-        done(new Error('Should not pre load the bumper when no configured explicitly'));
+    it('Should load the post bumper 3 seconds before the end', done => {
+      eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
+        validateAdParams(event, false);
+        player.currentTime.should.be.gt(player.duration - 3);
+        done();
       });
-      player.configure({sources});
-      setTimeout(done, 1000);
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [-1]
+          }
+        },
+        sources
+      });
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        player.currentTime = player.duration - 4;
+      });
+      player.play();
     });
 
     it('Should fire AD_LOADED once - preload false', done => {
@@ -605,7 +625,7 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should pre load the bumper', done => {
+    it('Should pre load the bumper by config', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, event => {
         validateAdParams(event, false);
         done();
@@ -618,9 +638,14 @@ describe('Bumper', () => {
       });
     });
 
-    it('Should not pre load the post bumper', done => {
+    it('Should not load the post bumper while playback', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
-        done(new Error('Should not pre load the post bumper when playing on the main video tag'));
+        try {
+          player.ended.should.be.true;
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
       player.configure({
         playback: {
@@ -633,10 +658,13 @@ describe('Bumper', () => {
         },
         sources
       });
-      setTimeout(done, 1000);
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        player.currentTime = player.duration - 2;
+      });
+      player.play();
     });
 
-    it('Should not pre load the bumper', done => {
+    it('Should not pre load the bumper by default', done => {
       eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
         done(new Error('Should not pre load the bumper when no configured explicitly'));
       });
