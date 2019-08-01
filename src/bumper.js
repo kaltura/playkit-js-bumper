@@ -65,7 +65,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _bumperContainerDiv: HTMLDivElement;
   _bumperCoverDiv: HTMLDivElement;
   _bumperClickThroughDiv: HTMLAnchorElement;
-  _bumperCompletedPromise: ?Promise<void>;
+  _bumperCompletedPromise: Promise<void>;
   _adBreak: boolean;
   _adBreakPosition: number;
   _bumperState: string;
@@ -169,7 +169,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @memberof Bumper
    */
   complete(): Promise<void> {
-    return this._bumperCompletedPromise || Promise.resolve();
+    return this._bumperCompletedPromise;
   }
 
   /**
@@ -208,6 +208,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: this.config.position});
     } else {
       this._state = BumperState.DONE;
+      this._bumperCompletedPromise = Promise.resolve();
     }
   }
 
