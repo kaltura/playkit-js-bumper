@@ -169,7 +169,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @memberof Bumper
    */
   complete(): Promise<void> {
-    return this._bumperCompletedPromise;
+    return this._bumperCompletedPromise || Promise.resolve();
   }
 
   /**
