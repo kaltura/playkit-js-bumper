@@ -65,7 +65,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _bumperContainerDiv: HTMLDivElement;
   _bumperCoverDiv: HTMLDivElement;
   _bumperClickThroughDiv: HTMLAnchorElement;
-  _bumperCompletedPromise: Promise<void>;
+  _bumperCompletedPromise: ?Promise<void>;
   _adBreak: boolean;
   _adBreakPosition: number;
   _bumperState: string;
