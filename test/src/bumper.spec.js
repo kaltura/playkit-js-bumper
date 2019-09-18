@@ -2,8 +2,7 @@ import {loadPlayer, EventManager} from '@playkit-js/playkit-js';
 // eslint-disable-next-line no-unused-vars
 import bumper from '../../src';
 
-const BUMPER_URL =
-    'http://qa-apache-php7.dev.kaltura.com/p/1091/sp/109100/serveFlavor/entryId/0_6r7gufsj/v/2/ev/4/flavorId/0_1c7nsvq6/forceproxy/true/name/a.mp4',
+const BUMPER_URL = 'https://cfvod.kaltura.com/pd/p/1740481/sp/174048100/serveFlavor/entryId/1_kbyh1guy/v/1/flavorId/1_hq6oztva/name/a.mp4',
   config = {
     plugins: {
       bumper: {
@@ -17,7 +16,7 @@ const BUMPER_URL =
     progressive: [
       {
         mimetype: 'video/mp4',
-        url: 'http://www.html5videoplayer.net/videos/toystory.mp4'
+        url: 'https://cfvod.kaltura.com/pd/p/1740481/sp/174048100/serveFlavor/entryId/1_kbyh1guy/v/1/flavorId/1_hq6oztva/name/a.mp4'
       }
     ]
   };
