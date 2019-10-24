@@ -452,7 +452,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPlayerExitFullscreen(): void {
-    if (this._adBreak && this.player.config.playback.playsinline) {
+    if (this._adBreak && Env.os.name === 'iOS' && this.player.config.playback.playsinline) {
       this.play();
     }
   }
