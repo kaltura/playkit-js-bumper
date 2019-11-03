@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.3.3"></a>
+## [1.3.3](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.2...v1.3.3) (2019-11-03)
+
+
+### Bug Fixes
+
+* **FEC-9425:** when open dev-tool and bumper on fullscreen,bumper on top of content ([#22](https://github.com/kaltura/playkit-js-bumper/issues/22)) ([3826741](https://github.com/kaltura/playkit-js-bumper/commit/3826741))
+* **FEC-9426:** when pause bumper on full screen and exit full screen bumper start play ([#23](https://github.com/kaltura/playkit-js-bumper/issues/23)) ([3e33dca](https://github.com/kaltura/playkit-js-bumper/commit/3e33dca))
+
+
+
 <a name="1.3.2"></a>
 ## [1.3.2](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.1...v1.3.2) (2019-08-01)
 
