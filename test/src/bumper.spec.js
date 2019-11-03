@@ -2,8 +2,7 @@ import {loadPlayer, EventManager} from '@playkit-js/playkit-js';
 // eslint-disable-next-line no-unused-vars
 import bumper from '../../src';
 
-const BUMPER_URL =
-    'http://qa-apache-php7.dev.kaltura.com/p/1091/sp/109100/serveFlavor/entryId/0_6r7gufsj/v/2/ev/4/flavorId/0_1c7nsvq6/forceproxy/true/name/a.mp4',
+const BUMPER_URL = 'https://cfvod.kaltura.com/pd/p/2196781/sp/219678100/serveFlavor/entryId/0_w9ud0vch/v/2/ev/2/flavorId/0_5zn1596c/name/a.mp4',
   config = {
     plugins: {
       bumper: {
