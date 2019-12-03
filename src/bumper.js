@@ -389,8 +389,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._adBreak = false;
       this._state = BumperState.IDLE;
       this.dispatchEvent(EventType.AD_ERROR, this._getAdError(promiseError));
-      this._maybeDispatchAdsCompleted();
-      this._adBreakPosition = -1;
+      if (!(this._adBreakPosition === 0 && promiseError)) {
+        // if the pre-roll autoplay failed let it be played by click
+        this._maybeDispatchAdsCompleted();
+        this._adBreakPosition = -1;
+      }
     }
   }
 
