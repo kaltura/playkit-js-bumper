@@ -2,7 +2,7 @@ import {loadPlayer, EventManager} from '@playkit-js/playkit-js';
 // eslint-disable-next-line no-unused-vars
 import bumper from '../../src';
 
-const BUMPER_URL = 'https://cfvod.kaltura.com/pd/p/1740481/sp/174048100/serveFlavor/entryId/1_kbyh1guy/v/1/flavorId/1_hq6oztva/name/a.mp4',
+const BUMPER_URL = 'https://cfvod.kaltura.com/pd/p/2196781/sp/219678100/serveFlavor/entryId/0_w9ud0vch/v/2/ev/2/flavorId/0_5zn1596c/name/a.mp4',
   config = {
     plugins: {
       bumper: {
@@ -21,12 +21,15 @@ const BUMPER_URL = 'https://cfvod.kaltura.com/pd/p/1740481/sp/174048100/serveFla
     ]
   };
 
+const BUMPER_DURATION = 4;
+const CONTENT_DURATION = 232;
+
 function validateAdParams(event, isAdDataLoaded) {
   event.payload.ad.bumper.should.be.true;
   event.payload.ad.id.should.equal('1234');
   event.payload.ad.clickThroughUrl.should.equal('some/url');
   event.payload.ad.url.should.equal(BUMPER_URL);
-  isAdDataLoaded ? Math.floor(event.payload.ad.duration).should.equal(4) : null;
+  isAdDataLoaded ? Math.floor(event.payload.ad.duration).should.equal(BUMPER_DURATION) : null;
 }
 function validateAdBreakParams(event, isPreroll) {
   event.payload.adBreak.numAds.should.equal(1);
@@ -36,7 +39,7 @@ function validateAdBreakParams(event, isPreroll) {
 
 function validateAdProgressParams(event) {
   event.payload.adProgress.currentTime.should.be.gt(0);
-  Math.floor(event.payload.adProgress.duration).should.equal(4);
+  Math.floor(event.payload.adProgress.duration).should.equal(BUMPER_DURATION);
 }
 
 describe('Bumper', () => {
@@ -337,7 +340,7 @@ describe('Bumper', () => {
         sources
       });
       eventManager.listenOnce(player, player.Event.PLAYING, () => {
-        player.currentTime = player.duration - 4;
+        player.currentTime = player.duration - BUMPER_DURATION;
       });
       player.play();
     });
@@ -647,8 +650,8 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_PROGRESS, () => {
         try {
           player.getVideoElement().src.should.equal(BUMPER_URL);
-          player.currentTime.should.equal(149.95);
-          player.duration.should.equal(149.95);
+          Math.floor(player.currentTime).should.equal(CONTENT_DURATION);
+          Math.floor(player.duration).should.equal(CONTENT_DURATION);
           player.paused.should.be.true;
           player.ended.should.be.true;
           done();
