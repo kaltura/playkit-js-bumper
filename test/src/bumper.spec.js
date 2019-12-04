@@ -559,6 +559,28 @@ describe('Bumper', () => {
       });
       player.play();
     });
+
+    it('Should show the bumper video while playing', done => {
+      eventManager.listenOnce(player, player.Event.AD_STARTED, () => {
+        try {
+          setTimeout(() => {
+            player.plugins.bumper._bumperVideoElement.style.visibility.should.equal('visible');
+            done();
+          });
+        } catch (e) {
+          done(e);
+        }
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [BumperType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.play();
+    });
   });
 
   describe('Non sibling video tags', () => {
@@ -962,6 +984,28 @@ describe('Bumper', () => {
         plugins: {
           bumper: {
             url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should hide the bumper video while playing', done => {
+      eventManager.listenOnce(player, player.Event.AD_STARTED, () => {
+        try {
+          setTimeout(() => {
+            player.plugins.bumper._bumperVideoElement.style.visibility.should.equal('hidden');
+            done();
+          });
+        } catch (e) {
+          done(e);
+        }
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [BumperType.PREROLL]
           }
         },
         sources
