@@ -1,6 +1,7 @@
 import {loadPlayer, EventManager} from '@playkit-js/playkit-js';
 // eslint-disable-next-line no-unused-vars
 import bumper from '../../src';
+import {BumperType} from '../../src/bumper';
 
 const BUMPER_URL = 'https://cfvod.kaltura.com/pd/p/2196781/sp/219678100/serveFlavor/entryId/0_w9ud0vch/v/2/ev/2/flavorId/0_5zn1596c/name/a.mp4',
   config = {
@@ -33,7 +34,7 @@ function validateAdParams(event, isAdDataLoaded) {
 }
 function validateAdBreakParams(event, isPreroll) {
   event.payload.adBreak.numAds.should.equal(1);
-  isPreroll ? event.payload.adBreak.position.should.equal(0) : event.payload.adBreak.position.should.equal(-1);
+  isPreroll ? event.payload.adBreak.position.should.equal(BumperType.PREROLL) : event.payload.adBreak.position.should.equal(BumperType.POSTROLL);
   isPreroll ? event.payload.adBreak.type.should.equal('preroll') : event.payload.adBreak.type.should.equal('postroll');
 }
 
@@ -56,7 +57,7 @@ describe('Bumper', () => {
     it('Should play pre and post bumper and fire events', done => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
         try {
-          event.payload.adBreaksPosition.should.deep.equal([0, -1]);
+          event.payload.adBreaksPosition.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
         } catch (e) {
           done(e);
         }
@@ -145,7 +146,7 @@ describe('Bumper', () => {
     it('Should play pre roll only', done => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
         try {
-          event.payload.adBreaksPosition.should.deep.equal([0]);
+          event.payload.adBreaksPosition.should.deep.equal([BumperType.PREROLL]);
         } catch (e) {
           done(e);
         }
@@ -165,7 +166,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0]
+            position: [BumperType.PREROLL]
           }
         },
         sources
@@ -176,7 +177,7 @@ describe('Bumper', () => {
     it('Should play post roll only', done => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
         try {
-          event.payload.adBreaksPosition.should.deep.equal([-1]);
+          event.payload.adBreaksPosition.should.deep.equal([BumperType.POSTROLL]);
         } catch (e) {
           done(e);
         }
@@ -194,7 +195,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [-1]
+            position: [BumperType.POSTROLL]
           }
         },
         sources
@@ -214,7 +215,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0]
+            position: [BumperType.PREROLL]
           }
         },
         sources
@@ -231,7 +232,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0],
+            position: [BumperType.PREROLL],
             disableMediaPreload: true
           }
         },
@@ -269,7 +270,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0],
+            position: [BumperType.PREROLL],
             disableMediaPreload: true
           }
         },
@@ -313,7 +314,7 @@ describe('Bumper', () => {
         },
         plugins: {
           bumper: {
-            position: [-1]
+            position: [BumperType.POSTROLL]
           }
         },
         sources
@@ -334,7 +335,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [-1]
+            position: [BumperType.POSTROLL]
           }
         },
         sources
@@ -395,32 +396,32 @@ describe('Bumper', () => {
     });
 
     it('Should avoid config invalid position', () => {
-      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
-      player.plugins.bumper._adBreakPosition.should.equal(0);
-      player.configure({plugins: {bumper: {position: [0]}}});
-      player.plugins.bumper.config.position.should.deep.equal([0]);
-      player.plugins.bumper._adBreakPosition.should.equal(0);
-      player.configure({plugins: {bumper: {position: [-1]}}});
-      player.plugins.bumper.config.position.should.deep.equal([-1]);
-      player.plugins.bumper._adBreakPosition.should.equal(-1);
-      player.configure({plugins: {bumper: {position: [0, -2]}}});
-      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
-      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.PREROLL);
+      player.configure({plugins: {bumper: {position: [BumperType.PREROLL]}}});
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.PREROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.PREROLL);
+      player.configure({plugins: {bumper: {position: [BumperType.POSTROLL]}}});
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.POSTROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.POSTROLL);
+      player.configure({plugins: {bumper: {position: [BumperType.PREROLL, -2]}}});
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.PREROLL);
       player.configure({plugins: {bumper: {position: [-2]}}});
-      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
-      player.plugins.bumper._adBreakPosition.should.equal(0);
-      player.configure({plugins: {bumper: {position: [-1, 0]}}});
-      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
-      player.plugins.bumper._adBreakPosition.should.equal(0);
-      player.configure({plugins: {bumper: {position: [0, 1, -1]}}});
-      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
-      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.PREROLL);
+      player.configure({plugins: {bumper: {position: [BumperType.POSTROLL, BumperType.PREROLL]}}});
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.PREROLL);
+      player.configure({plugins: {bumper: {position: [BumperType.PREROLL, 1, BumperType.POSTROLL]}}});
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.PREROLL);
       player.configure({plugins: {bumper: {position: []}}});
-      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
-      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.PREROLL);
       player.configure({plugins: {bumper: {position: null}}});
-      player.plugins.bumper.config.position.should.deep.equal([0, -1]);
-      player.plugins.bumper._adBreakPosition.should.equal(0);
+      player.plugins.bumper.config.position.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
+      player.plugins.bumper._adBreakPosition.should.equal(BumperType.PREROLL);
     });
 
     it('Should handle invalid bumper url', done => {
@@ -451,7 +452,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0],
+            position: [BumperType.PREROLL],
             url: 'some/invalid/url'
           }
         },
@@ -470,7 +471,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [-1],
+            position: [BumperType.POSTROLL],
             url: 'some/invalid/url'
           }
         },
@@ -521,6 +522,43 @@ describe('Bumper', () => {
       player.play();
       player.play();
     });
+
+    it('Should fire AD_ERROR when the play promise failed but not trigger ADS_COMPLETED and let play the preroll by click', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, error => {
+        if (error.payload.code === 4) {
+          // the load error come before the promise error
+          player.plugins.bumper._adBreak = true;
+          eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+            done();
+          });
+        } else {
+          eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+            eventManager.unlisten(player, player.Event.ADS_COMPLETED);
+          });
+          eventManager.listenOnce(player, player.Event.ADS_COMPLETED, () => {
+            done(new Error('ADS_COMPLETED should not triggered when autoplay failed'));
+          });
+          setTimeout(() => {
+            try {
+              player.plugins.bumper.adBreakPosition.should.equal(BumperType.PREROLL);
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
+        }
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [BumperType.PREROLL],
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
   });
 
   describe('Non sibling video tags', () => {
@@ -533,7 +571,7 @@ describe('Bumper', () => {
     it('Should play pre and post bumper and fire events', done => {
       eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, event => {
         try {
-          event.payload.adBreaksPosition.should.deep.equal([0, -1]);
+          event.payload.adBreaksPosition.should.deep.equal([BumperType.PREROLL, BumperType.POSTROLL]);
         } catch (e) {
           done(e);
         }
@@ -626,7 +664,7 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_PROGRESS, () => {
         try {
           player.getVideoElement().src.should.equal(BUMPER_URL);
-          player.currentTime.should.equal(0);
+          player.currentTime.should.equal(BumperType.PREROLL);
           isNaN(player.duration).should.be.true;
           player.paused.should.be.true;
           player.ended.should.be.false;
@@ -638,7 +676,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0]
+            position: [BumperType.PREROLL]
           }
         },
         sources
@@ -662,7 +700,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [-1]
+            position: [BumperType.POSTROLL]
           }
         },
         sources
@@ -694,7 +732,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0]
+            position: [BumperType.PREROLL]
           }
         },
         sources
@@ -716,7 +754,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0]
+            position: [BumperType.PREROLL]
           }
         },
         sources
@@ -734,7 +772,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0],
+            position: [BumperType.PREROLL],
             disableMediaPreload: true
           }
         },
@@ -775,7 +813,7 @@ describe('Bumper', () => {
         },
         plugins: {
           bumper: {
-            position: [-1]
+            position: [BumperType.POSTROLL]
           }
         },
         sources
@@ -871,7 +909,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0],
+            position: [BumperType.PREROLL],
             url: 'some/invalid/url'
           }
         },
@@ -890,7 +928,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [-1],
+            position: [BumperType.POSTROLL],
             url: 'some/invalid/url'
           }
         },
