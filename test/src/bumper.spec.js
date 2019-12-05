@@ -568,6 +568,29 @@ describe('Bumper', () => {
       });
       player.play();
     });
+
+    it('Should fire AD_ERROR with error params', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, error => {
+        try {
+          setTimeout(() => {
+            error.payload.code.should.exist;
+            error.payload.data.innerError.should.exist;
+            done();
+          });
+        } catch (e) {
+          done(e);
+        }
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.play();
+    });
   });
 
   describe('Non sibling video tags', () => {
@@ -977,6 +1000,7 @@ describe('Bumper', () => {
       });
       player.play();
     });
+
     it('Should fire AD_PLAY_FAILED when the play promise failed', done => {
       eventManager.listenOnce(player, player.Event.AD_PLAY_FAILED, () => {
         try {
@@ -1015,6 +1039,29 @@ describe('Bumper', () => {
         plugins: {
           bumper: {
             position: [BumperType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should fire AD_ERROR with error params', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, error => {
+        try {
+          setTimeout(() => {
+            error.payload.code.should.exist;
+            error.payload.data.innerError.should.exist;
+            done();
+          });
+        } catch (e) {
+          done(e);
+        }
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url'
           }
         },
         sources

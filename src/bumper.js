@@ -543,10 +543,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _getAdError(): Error {
     const severity = Error.Severity.CRITICAL;
     const category = Error.Category.ADS;
-    const code = this._bumperVideoElement.error && this._bumperVideoElement.error.code;
+    const code = this._videoElement.error && this._videoElement.error.code;
     return new Error(severity, category, code, {
       ad: this._getAd(),
-      innerError: this._bumperVideoElement.error
+      innerError: this._videoElement.error
     });
   }
 }
