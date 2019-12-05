@@ -12,7 +12,6 @@
 }
 
 .playkit-bumper-container {
-  visibility: hidden;
   position: absolute;
   width: 100%;
   min-height: 100%;

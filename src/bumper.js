@@ -277,6 +277,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     Utils.Dom.appendChild(this._bumperContainerDiv, this._bumperVideoElement);
     // Append the bumper container to the dom
     Utils.Dom.appendChild(playerView, this._bumperContainerDiv);
+    this._hideElement(this._bumperContainerDiv);
     this._initBumperCover();
     this._initBumperClickElement();
   }
@@ -484,7 +485,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _showElement(el: ?HTMLElement): void {
-    el && (el.style.visibility = 'visible');
+    el && el.style.removeProperty('visibility');
   }
 
   _hideElement(el: ?HTMLElement): void {
