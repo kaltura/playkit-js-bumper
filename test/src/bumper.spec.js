@@ -564,7 +564,7 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_STARTED, () => {
         try {
           setTimeout(() => {
-            player.plugins.bumper._bumperVideoElement.style.visibility.should.equal('visible');
+            player.plugins.bumper._bumperVideoElement.style.visibility.should.equal('');
             done();
           });
         } catch (e) {
