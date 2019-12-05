@@ -523,39 +523,26 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should fire AD_ERROR when the play promise failed but not trigger ADS_COMPLETED and let play the preroll by click', done => {
-      eventManager.listenOnce(player, player.Event.AD_ERROR, error => {
-        if (error.payload.code === 4) {
-          // the load error come before the promise error
-          player.plugins.bumper._adBreak = true;
-          eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
-            done();
-          });
-        } else {
-          eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
-            eventManager.unlisten(player, player.Event.ADS_COMPLETED);
-          });
-          eventManager.listenOnce(player, player.Event.ADS_COMPLETED, () => {
-            done(new Error('ADS_COMPLETED should not triggered when autoplay failed'));
-          });
-          setTimeout(() => {
-            try {
-              player.plugins.bumper.adBreakPosition.should.equal(BumperType.PREROLL);
-              done();
-            } catch (e) {
-              done(e);
-            }
-          });
+    it('Should fire AD_PLAY_FAILED when the play promise failed', done => {
+      let sandbox = sinon.sandbox.create();
+      eventManager.listenOnce(player, player.Event.AD_PLAY_FAILED, () => {
+        try {
+          player.plugins.bumper._adBreak.should.be.false;
+          done();
+        } catch (e) {
+          done(e);
         }
       });
       player.configure({
         plugins: {
           bumper: {
-            position: [BumperType.PREROLL],
-            url: 'some/invalid/url'
+            position: [BumperType.PREROLL]
           }
         },
         sources
+      });
+      sandbox.stub(player.plugins.bumper._videoElement, 'play').callsFake(function() {
+        return Promise.reject();
       });
       player.play();
     });
@@ -987,6 +974,28 @@ describe('Bumper', () => {
           }
         },
         sources
+      });
+      player.play();
+    });
+    it('Should fire AD_PLAY_FAILED when the play promise failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_PLAY_FAILED, () => {
+        try {
+          player.plugins.bumper._adBreak.should.be.false;
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [BumperType.PREROLL]
+          }
+        },
+        sources
+      });
+      sandbox.stub(player.plugins.bumper._videoElement, 'play').callsFake(function() {
+        return Promise.reject();
       });
       player.play();
     });

@@ -158,7 +158,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     const playPromise = this._videoElement.play();
     if (playPromise) {
       playPromise.catch(promiseError => {
-        this._onError(promiseError);
+        this._adBreak = false;
+        this.player.dispatchEvent(new FakeEvent(EventType.AD_PLAY_FAILED, {error: promiseError}));
       });
     }
   }
@@ -341,7 +342,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
         }
       }
       this.eventManager.listenOnce(this._bumperVideoElement, EventType.ENDED, resolve);
-      this.eventManager.listenOnce(this.player, EventType.AD_ERROR, reject);
+      this.eventManager.listenOnce(this._bumperVideoElement, EventType.ERROR, reject);
     }).catch(() => {
       // silence the promise rejection, error is handled by the ad error event
     });
@@ -398,16 +399,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       });
   }
 
-  _onError(mediaError: ?MediaError): void {
+  _onError(): void {
     if (this._adBreak || this._bumperState === BumperState.LOADING) {
       this._adBreak = false;
       this._state = BumperState.IDLE;
-      this.dispatchEvent(EventType.AD_ERROR, this._getAdError(mediaError));
-      if (!(this._adBreakPosition === BumperType.PREROLL && mediaError)) {
-        // if the pre-roll autoplay failed let it be played by click
-        this._maybeDispatchAdsCompleted();
-        this._adBreakPosition = BumperType.POSTROLL;
-      }
+      this.dispatchEvent(EventType.AD_ERROR, this._getAdError());
+      this._maybeDispatchAdsCompleted();
+      this._adBreakPosition = BumperType.POSTROLL;
     }
   }
 
@@ -542,14 +540,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return new AdBreak({type, position: this._adBreakPosition, numAds: 1});
   }
 
-  _getAdError(mediaError: ?MediaError): Error {
+  _getAdError(): Error {
     const severity = Error.Severity.CRITICAL;
     const category = Error.Category.ADS;
-    const innerError = mediaError || this._bumperVideoElement.error;
-    const code = innerError && innerError.code;
+    const code = this._bumperVideoElement.error && this._bumperVideoElement.error.code;
     return new Error(severity, category, code, {
       ad: this._getAd(),
-      innerError
+      innerError: this._bumperVideoElement.error
     });
   }
 }
