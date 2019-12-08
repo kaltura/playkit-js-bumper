@@ -764,7 +764,7 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
-            position: [0]
+            position: [BumperType.PREROLL]
           }
         },
         sources
