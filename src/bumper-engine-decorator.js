@@ -1,6 +1,6 @@
 // @flow
 import {FakeEvent, EventType} from '@playkit-js/playkit-js';
-import {Bumper, BumperType} from './bumper';
+import {Bumper} from './bumper';
 
 /**
  * Engine decorator for bumper plugin.
@@ -44,7 +44,7 @@ class BumperEngineDecorator implements IEngineDecorator {
    * @memberof BumperEngineDecorator
    */
   get ended(): boolean {
-    return this._plugin.adBreakPosition === BumperType.POSTROLL;
+    return this._plugin.adBreakPosition === -1;
   }
   /**
    * Get the current time in seconds.
