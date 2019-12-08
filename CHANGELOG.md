@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.3.4"></a>
+## [1.3.4](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.3...v1.3.4) (2019-12-08)
+
+
+### Bug Fixes
+
+* **FEC-9513:** endless spinner when auto play is failed ([#33](https://github.com/kaltura/playkit-js-bumper/issues/33)) ([c84b89e](https://github.com/kaltura/playkit-js-bumper/commit/c84b89e))
+* **FEC-9528:** the bumper is hidden when playOnMainVideoTag is true ([#35](https://github.com/kaltura/playkit-js-bumper/issues/35)) ([324c2e7](https://github.com/kaltura/playkit-js-bumper/commit/324c2e7))
+* bumper covers the playback ([#36](https://github.com/kaltura/playkit-js-bumper/issues/36)) ([2298476](https://github.com/kaltura/playkit-js-bumper/commit/2298476))
+
+
+
 <a name="1.3.3"></a>
 ## [1.3.3](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.2...v1.3.3) (2019-11-03)
 
