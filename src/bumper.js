@@ -23,7 +23,7 @@ import './assets/style.css';
 /**
  * @enum {Object.<string, number>}}
  */
-const BumperType: {[string]: number} = {
+const BumperBreakType: {[string]: number} = {
   PREROLL: 0,
   POSTROLL: -1
 };
@@ -31,7 +31,7 @@ const BumperType: {[string]: number} = {
 const BUMPER_CONTAINER_CLASS: string = 'playkit-bumper-container';
 const BUMPER_COVER_CLASS: string = 'playkit-bumper-cover';
 const BUMPER_CLICK_THROUGH_CLASS: string = 'playkit-bumper-click-through';
-const DEFAULT_POSITION: Array<number> = [BumperType.PREROLL, BumperType.POSTROLL];
+const DEFAULT_POSITION: Array<number> = [BumperBreakType.PREROLL, BumperBreakType.POSTROLL];
 const TIME_FOR_PRELOAD: number = 3;
 
 /**
@@ -233,11 +233,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._hideElement(this._bumperContainerDiv);
       this.dispatchEvent(EventType.AD_COMPLETED);
       this.dispatchEvent(EventType.AD_BREAK_END);
-      if (this._adBreakPosition === BumperType.PREROLL) {
+      if (this._adBreakPosition === BumperBreakType.PREROLL) {
         this._maybeSwitchToContent();
       }
       this._maybeDispatchAdsCompleted();
-      this._adBreakPosition = BumperType.POSTROLL;
+      this._adBreakPosition = BumperBreakType.POSTROLL;
     }
   }
 
@@ -320,7 +320,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     if (
       !this.config.position ||
       this.config.position.length !== 1 ||
-      (this.config.position[0] !== BumperType.PREROLL && this.config.position[0] !== BumperType.POSTROLL)
+      (this.config.position[0] !== BumperBreakType.PREROLL && this.config.position[0] !== BumperBreakType.POSTROLL)
     ) {
       this.config.position = DEFAULT_POSITION;
     }
@@ -405,7 +405,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._state = BumperState.IDLE;
       this.dispatchEvent(EventType.AD_ERROR, this._getAdError());
       this._maybeDispatchAdsCompleted();
-      this._adBreakPosition = BumperType.POSTROLL;
+      this._adBreakPosition = BumperBreakType.POSTROLL;
     }
   }
 
@@ -454,7 +454,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _maybeDispatchAdsCompleted(): void {
-    if (!this.config.position.includes(BumperType.POSTROLL) || this._adBreakPosition === BumperType.POSTROLL) {
+    if (!this.config.position.includes(BumperBreakType.POSTROLL) || this._adBreakPosition === BumperBreakType.POSTROLL) {
       this._state = BumperState.DONE;
       this.dispatchEvent(EventType.ADS_COMPLETED);
     }
@@ -536,7 +536,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _getAdBreak(): Ad {
-    const type = this._adBreakPosition === BumperType.PREROLL ? AdBreakType.PRE : AdBreakType.POST;
+    const type = this._adBreakPosition === BumperBreakType.PREROLL ? AdBreakType.PRE : AdBreakType.POST;
     return new AdBreak({type, position: this._adBreakPosition, numAds: 1});
   }
 
@@ -551,4 +551,4 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 }
 
-export {Bumper, BumperType};
+export {Bumper, BumperBreakType};
