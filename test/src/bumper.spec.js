@@ -525,9 +525,9 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should fire AD_PLAY_FAILED when the play promise failed', done => {
+    it('Should fire AD_AUTO_PLAY_FAILED when the play promise failed', done => {
       let sandbox = sinon.sandbox.create();
-      eventManager.listenOnce(player, player.Event.AD_PLAY_FAILED, () => {
+      eventManager.listenOnce(player, player.Event.AD_AUTO_PLAY_FAILED, () => {
         try {
           player.plugins.bumper._adBreak.should.be.false;
           done();
@@ -1003,8 +1003,8 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should fire AD_PLAY_FAILED when the play promise failed', done => {
-      eventManager.listenOnce(player, player.Event.AD_PLAY_FAILED, () => {
+    it('Should fire AD_AUTO_PLAY_FAILED when the play promise failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_AUTO_PLAY_FAILED, () => {
         try {
           player.plugins.bumper._adBreak.should.be.false;
           done();
