@@ -20,10 +20,18 @@ import {BumperAdsController} from './bumper-ads-controller';
 import {BumperEngineDecorator} from './bumper-engine-decorator';
 import './assets/style.css';
 
+/**
+ * @enum {Object.<string, number>}}
+ */
+const BumperBreakType: {[string]: number} = {
+  PREROLL: 0,
+  POSTROLL: -1
+};
+
 const BUMPER_CONTAINER_CLASS: string = 'playkit-bumper-container';
 const BUMPER_COVER_CLASS: string = 'playkit-bumper-cover';
 const BUMPER_CLICK_THROUGH_CLASS: string = 'playkit-bumper-click-through';
-const DEFAULT_POSITION: Array<number> = [0, -1];
+const DEFAULT_POSITION: Array<number> = [BumperBreakType.PREROLL, BumperBreakType.POSTROLL];
 const TIME_FOR_PRELOAD: number = 3;
 
 /**
@@ -146,8 +154,14 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   play(): void {
     this.load();
     this._adBreak = true;
-    this._videoElement.play();
     this._hideElement(this._bumperCoverDiv);
+    const playPromise = this._videoElement.play();
+    if (playPromise) {
+      playPromise.catch(promiseError => {
+        this._adBreak = false;
+        this.player.dispatchEvent(new FakeEvent(EventType.AD_AUTOPLAY_FAILED, {error: promiseError}));
+      });
+    }
   }
 
   /**
@@ -219,11 +233,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._hideElement(this._bumperContainerDiv);
       this.dispatchEvent(EventType.AD_COMPLETED);
       this.dispatchEvent(EventType.AD_BREAK_END);
-      if (this._adBreakPosition === 0) {
+      if (this._adBreakPosition === BumperBreakType.PREROLL) {
         this._maybeSwitchToContent();
       }
       this._maybeDispatchAdsCompleted();
-      this._adBreakPosition = -1;
+      this._adBreakPosition = BumperBreakType.POSTROLL;
     }
   }
 
@@ -303,7 +317,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _validatePosition(): void {
     // position should be [0], [-1] or [0, -1]
-    if (!this.config.position || this.config.position.length !== 1 || (this.config.position[0] !== 0 && this.config.position[0] !== -1)) {
+    if (
+      !this.config.position ||
+      this.config.position.length !== 1 ||
+      (this.config.position[0] !== BumperBreakType.PREROLL && this.config.position[0] !== BumperBreakType.POSTROLL)
+    ) {
       this.config.position = DEFAULT_POSITION;
     }
     this._adBreakPosition = this.config.position[0];
@@ -387,7 +405,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this._state = BumperState.IDLE;
       this.dispatchEvent(EventType.AD_ERROR, this._getAdError());
       this._maybeDispatchAdsCompleted();
-      this._adBreakPosition = -1;
+      this._adBreakPosition = BumperBreakType.POSTROLL;
     }
   }
 
@@ -436,7 +454,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _maybeDispatchAdsCompleted(): void {
-    if (!this.config.position.includes(-1) || this._adBreakPosition === -1) {
+    if (!this.config.position.includes(BumperBreakType.POSTROLL) || this._adBreakPosition === BumperBreakType.POSTROLL) {
       this._state = BumperState.DONE;
       this.dispatchEvent(EventType.ADS_COMPLETED);
     }
@@ -518,19 +536,19 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _getAdBreak(): Ad {
-    const type = this._adBreakPosition === 0 ? AdBreakType.PRE : AdBreakType.POST;
+    const type = this._adBreakPosition === BumperBreakType.PREROLL ? AdBreakType.PRE : AdBreakType.POST;
     return new AdBreak({type, position: this._adBreakPosition, numAds: 1});
   }
 
   _getAdError(): Error {
     const severity = Error.Severity.CRITICAL;
     const category = Error.Category.ADS;
-    const code = this._bumperVideoElement.error && this._bumperVideoElement.error.code;
+    const code = this._videoElement.error && this._videoElement.error.code;
     return new Error(severity, category, code, {
       ad: this._getAd(),
-      innerError: this._bumperVideoElement.error
+      innerError: this._videoElement.error
     });
   }
 }
 
-export {Bumper};
+export {Bumper, BumperBreakType};

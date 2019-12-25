@@ -1,6 +1,6 @@
 // @flow
 import {BaseMiddleware, EventType} from '@playkit-js/playkit-js';
-import {Bumper} from './bumper';
+import {Bumper, BumperBreakType} from './bumper';
 import {BumperState} from './bumper-state';
 
 /**
@@ -34,10 +34,13 @@ class BumperMiddleware extends BaseMiddleware {
    */
   load(next: Function): void {
     this._nextLoad = next;
-    if (this._context.adBreakPosition === 0 && !(this._context.playOnMainVideoTag() && this._context.player.getVideoElement().src)) {
+    if (
+      this._context.adBreakPosition === BumperBreakType.PREROLL &&
+      !(this._context.playOnMainVideoTag() && this._context.player.getVideoElement().src)
+    ) {
       this._context.load();
     }
-    if (!(this._context.config.url && this._context.config.position.includes(0))) {
+    if (!(this._context.config.url && this._context.config.position.includes(BumperBreakType.PREROLL))) {
       this._callNextLoad();
     }
   }
@@ -63,7 +66,7 @@ class BumperMiddleware extends BaseMiddleware {
       case BumperState.IDLE:
       case BumperState.LOADING:
       case BumperState.LOADED: {
-        if (this._context.config.url && this._context.adBreakPosition === 0) {
+        if (this._context.config.url && this._context.adBreakPosition === BumperBreakType.PREROLL) {
           // preroll bumper
           this._context.initBumperCompletedPromise();
           this._context.play();
