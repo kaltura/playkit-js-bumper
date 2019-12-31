@@ -774,6 +774,39 @@ describe('Bumper', () => {
       player.play();
     });
 
+    it('Should mask the bumper loading events', done => {
+      eventManager.listenOnce(player, player.Event.LOAD_START, () => {
+        done(new Error('LOAD_START should not triggered while bumper loading'));
+      });
+      setTimeout(done, 100);
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [BumperBreakType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.load();
+    });
+
+    it('Should mask the bumper loading error', done => {
+      eventManager.listenOnce(player, player.Event.ERROR, () => {
+        done(new Error('ERROR should not triggered while bumper loading'));
+      });
+      setTimeout(done, 100);
+      player.configure({
+        plugins: {
+          bumper: {
+            position: [BumperBreakType.PREROLL],
+            url: 'some/invalid/url'
+          }
+        },
+        sources
+      });
+      player.load();
+    });
+
     it('Should not load the content while the bumper', done => {
       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
         try {

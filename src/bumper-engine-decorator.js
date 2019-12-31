@@ -1,6 +1,7 @@
 // @flow
 import {FakeEvent, EventType} from '@playkit-js/playkit-js';
 import {Bumper, BumperBreakType} from './bumper';
+import {BumperState} from './bumper-state';
 
 /**
  * Engine decorator for bumper plugin.
@@ -17,7 +18,7 @@ class BumperEngineDecorator implements IEngineDecorator {
   }
 
   get active(): boolean {
-    return this._plugin.playOnMainVideoTag() && this._plugin.isAdPlaying();
+    return this._plugin.playOnMainVideoTag() && (this._plugin.isAdPlaying() || this._plugin.state === BumperState.LOADING);
   }
 
   dispatchEvent(event: FakeEvent): boolean {
