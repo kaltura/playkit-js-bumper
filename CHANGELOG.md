@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.3.7"></a>
+## [1.3.7](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.6...v1.3.7) (2019-12-31)
+
+
+### Bug Fixes
+
+* **FEC-9533:** the player in error screen when bumper preload is failed and playOnMainVideoTag is true ([#42](https://github.com/kaltura/playkit-js-bumper/issues/42)) ([08ad30e](https://github.com/kaltura/playkit-js-bumper/commit/08ad30e))
+
+
+
 <a name="1.3.6"></a>
 ## [1.3.6](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.5...v1.3.6) (2019-12-29)
 
