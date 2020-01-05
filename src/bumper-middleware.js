@@ -56,6 +56,8 @@ class BumperMiddleware extends BaseMiddleware {
         if (!this._context.player.getVideoElement().src) {
           this._context.player.getVideoElement().load();
         }
+        this._context.eventManager.listenOnce(this._context.player, EventType.AD_BREAK_END, () => this._callNextLoad());
+        this._context.eventManager.listenOnce(this._context.player, EventType.AD_ERROR, () => this._callNextLoad());
       } else {
         this._callNextLoad();
       }
@@ -112,7 +114,7 @@ class BumperMiddleware extends BaseMiddleware {
   }
 
   _callNextLoad(): void {
-    if (this._nextLoad && !(this._context.playOnMainVideoTag() || this._context.config.disableMediaPreload)) {
+    if (this._nextLoad && !this._context.playOnMainVideoTag()) {
       this.callNext(this._nextLoad);
     }
     this._nextLoad = null;
