@@ -32,6 +32,7 @@ function validateAdParams(event, isAdDataLoaded) {
   event.payload.ad.url.should.equal(BUMPER_URL);
   isAdDataLoaded ? Math.floor(event.payload.ad.duration).should.equal(BUMPER_DURATION) : null;
 }
+
 function validateAdBreakParams(event, isPreroll) {
   event.payload.adBreak.numAds.should.equal(1);
   isPreroll
@@ -208,7 +209,7 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should load the content while the bumper', done => {
+    it('Should load the content while the bumper playing', done => {
       eventManager.listenOnce(player, player.Event.LOAD_START, () => {
         eventManager.listenOnce(player, player.Event.AD_BREAK_END, () => {
           done();
@@ -225,7 +226,7 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should not load the content while the bumper', done => {
+    it('Should load the content only once the bumper finished', done => {
       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
         eventManager.listenOnce(player, player.Event.LOAD_START, () => {
           done();
@@ -234,6 +235,44 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
+            position: [BumperBreakType.PREROLL],
+            disableMediaPreload: true
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should load the content only once the bumper load failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+        eventManager.listenOnce(player, player.Event.LOAD_START, () => {
+          done();
+        });
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url',
+            position: [BumperBreakType.PREROLL],
+            disableMediaPreload: true
+          }
+        },
+        sources
+      });
+      player.load();
+    });
+
+    it('Should load the content only once the bumper play failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+        eventManager.listenOnce(player, player.Event.LOAD_START, () => {
+          done();
+        });
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url',
             position: [BumperBreakType.PREROLL],
             disableMediaPreload: true
           }
@@ -807,7 +846,7 @@ describe('Bumper', () => {
       player.load();
     });
 
-    it('Should not load the content while the bumper', done => {
+    it('Should load the content only once the bumper finished', done => {
       eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
         try {
           player.getVideoElement().src.should.equal(BUMPER_URL);
@@ -821,6 +860,48 @@ describe('Bumper', () => {
       player.configure({
         plugins: {
           bumper: {
+            position: [BumperBreakType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should load the content only once the bumper load failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+        eventManager.listenOnce(player, player.Event.LOAD_START, () => {
+          eventManager.listenOnce(player, player.Event.PLAYING, () => {
+            done();
+          });
+          player.play();
+        });
+      });
+      player.configure({
+        playback: {
+          preload: 'auto'
+        },
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url',
+            position: [BumperBreakType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.load();
+    });
+
+    it('Should load the content only once the bumper play failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+        eventManager.listenOnce(player, player.Event.LOAD_START, () => {
+          done();
+        });
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url',
             position: [BumperBreakType.PREROLL]
           }
         },
