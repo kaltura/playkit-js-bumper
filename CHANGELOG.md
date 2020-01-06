@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.3.8"></a>
+## [1.3.8](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.7...v1.3.8) (2020-01-06)
+
+
+### Bug Fixes
+
+* **FEC-9514:** mismatch between the player size and the bumper ([#43](https://github.com/kaltura/playkit-js-bumper/issues/43)) ([b81cf4c](https://github.com/kaltura/playkit-js-bumper/commit/b81cf4c))
+* **FEC-9594:** the playback failed after the bumper finished when "disableMediaPreload: true" ([#44](https://github.com/kaltura/playkit-js-bumper/issues/44)) ([87e6218](https://github.com/kaltura/playkit-js-bumper/commit/87e6218))
+
+
+
 <a name="1.3.7"></a>
 ## [1.3.7](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.6...v1.3.7) (2019-12-31)
 
