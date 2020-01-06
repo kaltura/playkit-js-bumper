@@ -34,6 +34,7 @@ class BumperMiddleware extends BaseMiddleware {
    */
   load(next: Function): void {
     this._nextLoad = next;
+    this._context.eventManager.listenOnce(this._context.player, EventType.AD_ERROR, () => this._callNextLoad());
     if (
       this._context.adBreakPosition === BumperBreakType.PREROLL &&
       !(this._context.playOnMainVideoTag() && this._context.player.getVideoElement().src)
@@ -54,8 +55,7 @@ class BumperMiddleware extends BaseMiddleware {
     if (this._isFirstPlay) {
       if (this._context.config.disableMediaPreload || this._context.playOnMainVideoTag()) {
         this._context.eventManager.listenOnce(this._context.player, EventType.AD_BREAK_END, () => this._callNextLoad());
-        this._context.eventManager.listenOnce(this._context.player, EventType.AD_ERROR, () => this._callNextLoad());
-        if (!(this._context.playOnMainVideoTag() && this._context.player.getVideoElement().src)) {
+        if (!(this._context.playOnMainVideoTag() || this._context.player.getVideoElement().src)) {
           this._context.player.getVideoElement().load();
         }
       } else {

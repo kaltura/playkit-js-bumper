@@ -244,7 +244,26 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should load the content only once the bumper failed', done => {
+    it('Should load the content only once the bumper load failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+        eventManager.listenOnce(player, player.Event.LOAD_START, () => {
+          done();
+        });
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url',
+            position: [BumperBreakType.PREROLL],
+            disableMediaPreload: true
+          }
+        },
+        sources
+      });
+      player.load();
+    });
+
+    it('Should load the content only once the bumper play failed', done => {
       eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
         eventManager.listenOnce(player, player.Event.LOAD_START, () => {
           done();
@@ -849,7 +868,31 @@ describe('Bumper', () => {
       player.play();
     });
 
-    it('Should load the content only once the bumper failed', done => {
+    it('Should load the content only once the bumper load failed', done => {
+      eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
+        eventManager.listenOnce(player, player.Event.LOAD_START, () => {
+          eventManager.listenOnce(player, player.Event.PLAYING, () => {
+            done();
+          });
+          player.play();
+        });
+      });
+      player.configure({
+        playback: {
+          preload: 'auto'
+        },
+        plugins: {
+          bumper: {
+            url: 'some/invalid/url',
+            position: [BumperBreakType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.load();
+    });
+
+    it('Should load the content only once the bumper play failed', done => {
       eventManager.listenOnce(player, player.Event.AD_ERROR, () => {
         eventManager.listenOnce(player, player.Event.LOAD_START, () => {
           done();
