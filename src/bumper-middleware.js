@@ -1,6 +1,6 @@
 // @flow
 import {BaseMiddleware, EventType} from '@playkit-js/playkit-js';
-import {Bumper} from './bumper';
+import {Bumper, BumperBreakType} from './bumper';
 import {BumperState} from './bumper-state';
 
 /**
@@ -34,10 +34,14 @@ class BumperMiddleware extends BaseMiddleware {
    */
   load(next: Function): void {
     this._nextLoad = next;
-    if (this._context.adBreakPosition === 0 && !(this._context.playOnMainVideoTag() && this._context.player.getVideoElement().src)) {
+    this._context.eventManager.listenOnce(this._context.player, EventType.AD_ERROR, () => this._callNextLoad());
+    if (
+      this._context.adBreakPosition === BumperBreakType.PREROLL &&
+      !(this._context.playOnMainVideoTag() && this._context.player.getVideoElement().src)
+    ) {
       this._context.load();
     }
-    if (!(this._context.config.url && this._context.config.position.includes(0))) {
+    if (!(this._context.config.url && this._context.config.position.includes(BumperBreakType.PREROLL))) {
       this._callNextLoad();
     }
   }
@@ -48,9 +52,10 @@ class BumperMiddleware extends BaseMiddleware {
    * @returns {void}
    */
   play(next: Function): void {
-    if (this._isFirstPlay && !this._context.playOnMainVideoTag()) {
-      if (this._context.config.disableMediaPreload) {
-        if (!this._context.player.getVideoElement().src) {
+    if (this._isFirstPlay) {
+      if (this._context.config.disableMediaPreload || this._context.playOnMainVideoTag()) {
+        this._context.eventManager.listenOnce(this._context.player, EventType.AD_BREAK_END, () => this._callNextLoad());
+        if (!(this._context.playOnMainVideoTag() || this._context.player.getVideoElement().src)) {
           this._context.player.getVideoElement().load();
         }
       } else {
@@ -63,7 +68,7 @@ class BumperMiddleware extends BaseMiddleware {
       case BumperState.IDLE:
       case BumperState.LOADING:
       case BumperState.LOADED: {
-        if (this._context.config.url && this._context.adBreakPosition === 0) {
+        if (this._context.config.url && this._context.adBreakPosition === BumperBreakType.PREROLL) {
           // preroll bumper
           this._context.initBumperCompletedPromise();
           this._context.play();
@@ -109,7 +114,7 @@ class BumperMiddleware extends BaseMiddleware {
   }
 
   _callNextLoad(): void {
-    if (this._nextLoad && !(this._context.playOnMainVideoTag() || this._context.config.disableMediaPreload)) {
+    if (this._nextLoad) {
       this.callNext(this._nextLoad);
     }
     this._nextLoad = null;
