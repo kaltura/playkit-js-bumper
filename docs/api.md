@@ -2,29 +2,29 @@
 
 ### Table of Contents
 
-* [BumperAdsController][1]
-  * [Parameters][2]
-  * [skipAd][3]
-  * [playAdNow][4]
-  * [onPlaybackEnded][5]
-  * [active][6]
-* [done][7]
-* [BumperMiddleware][8]
-  * [Parameters][9]
-  * [play][10]
-    * [Parameters][11]
-  * [pause][12]
-    * [Parameters][13]
-* [Bumper][14]
-  * [Parameters][15]
-  * [getMiddlewareImpl][16]
-  * [play][17]
-  * [pause][18]
-  * [complete][19]
-  * [reset][20]
-  * [defaultConfig][21]
-  * [isValid][22]
-* [getAdsController][23]
+- [BumperAdsController][1]
+  - [Parameters][2]
+  - [skipAd][3]
+  - [playAdNow][4]
+  - [onPlaybackEnded][5]
+  - [active][6]
+- [done][7]
+- [BumperMiddleware][8]
+  - [Parameters][9]
+  - [play][10]
+    - [Parameters][11]
+  - [pause][12]
+    - [Parameters][13]
+- [Bumper][14]
+  - [Parameters][15]
+  - [getMiddlewareImpl][16]
+  - [play][17]
+  - [pause][18]
+  - [complete][19]
+  - [reset][20]
+  - [defaultConfig][21]
+  - [isValid][22]
+- [getAdsController][23]
 
 ## BumperAdsController
 
@@ -32,7 +32,7 @@ Controller for bumper plugin.
 
 ### Parameters
 
-* `context` **[Bumper][24]** The bumper plugin context.
+- `context` **[Bumper][24]** The bumper plugin context.
 
 ### skipAd
 
@@ -72,7 +72,7 @@ Middleware implementation for bumper plugin.
 
 ### Parameters
 
-* `context` **[Bumper][24]** The bumper plugin context.
+- `context` **[Bumper][24]** The bumper plugin context.
 
 ### play
 
@@ -80,7 +80,7 @@ Play middleware handler.
 
 #### Parameters
 
-* `next` **[Function][27]** The next play handler in the middleware chain.
+- `next` **[Function][27]** The next play handler in the middleware chain.
 
 Returns **void**
 
@@ -90,7 +90,7 @@ Pause middleware handler.
 
 #### Parameters
 
-* `next` **[Function][27]** The next pause handler in the middleware chain.
+- `next` **[Function][27]** The next pause handler in the middleware chain.
 
 Returns **void**
 
@@ -102,9 +102,9 @@ The bumper plugin.
 
 ### Parameters
 
-* `name` **[string][28]** The plugin name.
-* `player` **Player** The player instance.
-* `config` **[Object][29]** The plugin config.
+- `name` **[string][28]** The plugin name.
+- `player` **Player** The player instance.
+- `config` **[Object][29]** The plugin config.
 
 ### getMiddlewareImpl
 

@@ -205,7 +205,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   playOnMainVideoTag(): boolean {
     return (
-      this.config.playOnMainVideoTag || (Env.os.name === 'iOS' && (this.player.isFullscreen() && !this.player.config.playback.inBrowserFullscreen))
+      this.config.playOnMainVideoTag || (Env.os.name === 'iOS' && this.player.isFullscreen() && !this.player.config.playback.inBrowserFullscreen)
     );
   }
 
