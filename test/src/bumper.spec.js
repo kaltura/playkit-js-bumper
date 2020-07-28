@@ -565,7 +565,7 @@ describe('Bumper', () => {
     });
 
     it('Should fire AD_AUTOPLAY_FAILED when the play promise failed', done => {
-      let sandbox = sinon.sandbox.create();
+      let sandbox = sinon.createSandbox();
       eventManager.listenOnce(player, player.Event.AD_AUTOPLAY_FAILED, () => {
         try {
           player.plugins.bumper._adBreak.should.be.false;
@@ -582,7 +582,7 @@ describe('Bumper', () => {
         },
         sources
       });
-      sandbox.stub(player.plugins.bumper._videoElement, 'play').callsFake(function() {
+      sandbox.stub(player.plugins.bumper._videoElement, 'play').callsFake(function () {
         return Promise.reject();
       });
       player.play();
@@ -635,7 +635,7 @@ describe('Bumper', () => {
   });
 
   describe('Non sibling video tags', () => {
-    let sandbox = sinon.sandbox.create();
+    let sandbox = sinon.createSandbox();
     beforeEach(() => {
       sandbox.stub(player.plugins.bumper, 'playOnMainVideoTag').callsFake(() => {
         return true;
@@ -1134,7 +1134,7 @@ describe('Bumper', () => {
         },
         sources
       });
-      sandbox.stub(player.plugins.bumper._videoElement, 'play').callsFake(function() {
+      sandbox.stub(player.plugins.bumper._videoElement, 'play').callsFake(function () {
         return Promise.reject();
       });
       player.play();
