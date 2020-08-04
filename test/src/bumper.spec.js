@@ -1,10 +1,15 @@
-import {loadPlayer, EventManager} from '@playkit-js/playkit-js';
+import {core, setup} from 'kaltura-player-js';
 // eslint-disable-next-line no-unused-vars
 import bumper from '../../src';
 import {BumperBreakType} from '../../src/bumper';
+import * as TestUtils from './utils/test-utils';
 
+const {EventManager} = core;
+const targetId = 'player-placeholder_bumper.spec';
 const BUMPER_URL = 'https://cfvod.kaltura.com/pd/p/2196781/sp/219678100/serveFlavor/entryId/0_w9ud0vch/v/2/ev/2/flavorId/0_5zn1596c/name/a.mp4',
   config = {
+    targetId,
+    provider: {},
     plugins: {
       bumper: {
         id: '1234',
@@ -48,13 +53,17 @@ function validateAdProgressParams(event) {
 
 describe('Bumper', () => {
   let player, eventManager;
+  before(function () {
+    TestUtils.createElement('DIV', targetId);
+  });
   beforeEach(() => {
-    player = loadPlayer(config);
+    player = setup(config);
     eventManager = new EventManager();
   });
   afterEach(() => {
     player.destroy();
     eventManager.destroy();
+    TestUtils.removeVideoElementsFromTestPage();
   });
   describe('Sibling video tags', () => {
     it('Should play pre and post bumper and fire events', done => {

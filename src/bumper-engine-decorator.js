@@ -1,7 +1,9 @@
 // @flow
-import {FakeEvent, EventType} from '@playkit-js/playkit-js';
+import {core} from 'kaltura-player-js';
 import {Bumper, BumperBreakType} from './bumper';
 import {BumperState} from './bumper-state';
+
+const {FakeEvent, EventType} = core;
 
 /**
  * Engine decorator for bumper plugin.

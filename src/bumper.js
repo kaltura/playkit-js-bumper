@@ -1,25 +1,12 @@
 // @flow
-// import {BaseMiddleware, BasePlugin, EngineType, Error, getCapabilities, Utils} from '@playkit-js/playkit-js';
-import {
-  BaseMiddleware,
-  BasePlugin,
-  Utils,
-  Error,
-  FakeEvent,
-  EventType,
-  Ad,
-  AdBreak,
-  AdBreakType,
-  AudioTrack,
-  TextTrack,
-  Env
-} from '@playkit-js/playkit-js';
+import {core, BasePlugin} from 'kaltura-player-js';
 import {BumperMiddleware} from './bumper-middleware';
 import {BumperState} from './bumper-state';
 import {BumperAdsController} from './bumper-ads-controller';
 import {BumperEngineDecorator} from './bumper-engine-decorator';
 import './assets/style.css';
 
+const {BaseMiddleware, Utils, Error, FakeEvent, EventType, Ad, AdBreak, AdBreakType, AudioTrack, TextTrack, Env} = core;
 /**
  * @enum {Object.<string, number>}}
  */
@@ -196,11 +183,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    */
   reset(): void {
     this.eventManager.removeAll();
-    this._hideElement(this._bumperContainerDiv);
-    this._resetClickThroughElement();
-    Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
-    this._initMembers();
+    this._clean();
     this._addBindings();
+  }
+
+  destroy(): void {
+    this.eventManager.destroy();
+    this._clean();
   }
 
   playOnMainVideoTag(): boolean {
@@ -548,6 +537,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       ad: this._getAd(),
       innerError: this._videoElement.error
     });
+  }
+
+  _clean(): void {
+    this._hideElement(this._bumperContainerDiv);
+    this._resetClickThroughElement();
+    Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
+    this._initMembers();
   }
 }
 
