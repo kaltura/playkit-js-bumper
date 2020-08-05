@@ -1,6 +1,22 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [1.4.0](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.8...v1.4.0) (2020-08-05)
+
+
+### Build System
+
+* **FEC-9495:** update after deploy stage to ping Jenkins ([#40](https://github.com/kaltura/playkit-js-bumper/issues/40)) ([40120c3](https://github.com/kaltura/playkit-js-bumper/commit/40120c3))
+* github bad certificate ([#45](https://github.com/kaltura/playkit-js-bumper/issues/45)) ([bdcaa92](https://github.com/kaltura/playkit-js-bumper/commit/bdcaa92))
+
+
+### Features
+
+* **FEC-10057:** move the plugin manager to kaltura player ([#54](https://github.com/kaltura/playkit-js-bumper/issues/54)) ([765438c](https://github.com/kaltura/playkit-js-bumper/commit/765438c))
+* **FEC-10290:** upgrade NPM packages ([#49](https://github.com/kaltura/playkit-js-bumper/issues/49)) ([d73fe0f](https://github.com/kaltura/playkit-js-bumper/commit/d73fe0f))
+
+
 
 <a name="1.3.8"></a>
 ## [1.3.8](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.7...v1.3.8) (2020-01-06)
