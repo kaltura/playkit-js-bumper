@@ -1,8 +1,9 @@
 // @flow
-import {BaseMiddleware, EventType} from '@playkit-js/playkit-js';
+import {core} from 'kaltura-player-js';
 import {Bumper, BumperBreakType} from './bumper';
 import {BumperState} from './bumper-state';
 
+const {BaseMiddleware, EventType} = core;
 /**
  * Middleware implementation for bumper plugin.
  * @classdesc
