@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/kaltura/playkit-js-bumper/compare/v1.4.0...v2.0.0) (2020-09-08)
+
+
+### Build System
+
+* **FEC-10064:** add automatic release notes ([#57](https://github.com/kaltura/playkit-js-bumper/issues/57)) ([f3ff9eb](https://github.com/kaltura/playkit-js-bumper/commit/f3ff9eb))
+
+
+### Features
+
+* **FEC-10347:** expose kaltura player as a global variable instead of UMD ([#56](https://github.com/kaltura/playkit-js-bumper/issues/56)) ([0b1da4a](https://github.com/kaltura/playkit-js-bumper/commit/0b1da4a))
+
+
+### BREAKING CHANGES
+
+* **FEC-10347:** This package is not UMD anymore
+
+
+
 ## [1.4.0](https://github.com/kaltura/playkit-js-bumper/compare/v1.3.8...v1.4.0) (2020-08-05)
 
 
