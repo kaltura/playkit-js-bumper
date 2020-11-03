@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.0...v2.0.1) (2020-11-03)
+
+
+### Build System
+
+* remove plugins that already exist on preset-env ([#60](https://github.com/kaltura/playkit-js-bumper/issues/60)) ([2ffd38b](https://github.com/kaltura/playkit-js-bumper/commit/2ffd38b))
+
+
+
 ## [2.0.0](https://github.com/kaltura/playkit-js-bumper/compare/v1.4.0...v2.0.0) (2020-09-08)
 
 
