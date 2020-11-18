@@ -641,6 +641,13 @@ describe('Bumper', () => {
       });
       player.play();
     });
+
+    it('Should update the click through url', () => {
+      player.configure({sources});
+      player.plugins.bumper._bumperClickThroughDiv.href.endsWith('some/url').should.be.true;
+      player.configure({plugins: {bumper: {clickThroughUrl: 'some/updated/url'}}});
+      player.plugins.bumper._bumperClickThroughDiv.href.endsWith('some/updated/url').should.be.true;
+    });
   });
 
   describe('Non sibling video tags', () => {
@@ -1192,6 +1199,13 @@ describe('Bumper', () => {
         sources
       });
       player.play();
+    });
+
+    it('Should update the click through url', () => {
+      player.configure({sources});
+      player.plugins.bumper._bumperClickThroughDiv.href.endsWith('some/url').should.be.true;
+      player.configure({plugins: {bumper: {clickThroughUrl: 'some/updated/url'}}});
+      player.plugins.bumper._bumperClickThroughDiv.href.endsWith('some/updated/url').should.be.true;
     });
   });
 });
