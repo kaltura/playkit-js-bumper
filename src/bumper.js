@@ -94,6 +94,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   updateConfig(update: Object): void {
     super.updateConfig(update);
     this._validatePosition();
+    this._setClickThroughUrl();
   }
 
   /**
@@ -294,7 +295,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _initMembers(): void {
     this._adBreak = false;
     this._validatePosition();
-    this.config.clickThroughUrl && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
+    this._setClickThroughUrl();
     this._contentSrc = '';
     this._contentCurrentTime = 0;
     this._contentDuration = NaN;
@@ -302,6 +303,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._selectedTextTrack = null;
     this._selectedPlaybackRate = 1;
     this._state = BumperState.IDLE;
+  }
+
+  _setClickThroughUrl() {
+    this.config.clickThroughUrl && (this._bumperClickThroughDiv.href = this.config.clickThroughUrl);
   }
 
   _validatePosition(): void {
