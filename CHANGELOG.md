@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.2](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.0...v2.0.2) (2020-11-22)
+
+
+### Bug Fixes
+
+* **FEC-10673:** back-end bumper : no clickthrough works ([#61](https://github.com/kaltura/playkit-js-bumper/issues/61)) ([d57b7f6](https://github.com/kaltura/playkit-js-bumper/commit/d57b7f6))
+
+
+### Build System
+
+* remove plugins that already exist on preset-env ([#60](https://github.com/kaltura/playkit-js-bumper/issues/60)) ([2ffd38b](https://github.com/kaltura/playkit-js-bumper/commit/2ffd38b))
+
+
+
 ### [2.0.1](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.0...v2.0.1) (2020-11-03)
 
 
