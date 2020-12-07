@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.4](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.3...v2.0.4) (2020-12-07)
+
+
+### Bug Fixes
+
+* **FEC-10676:** no post bumper displayed ([#62](https://github.com/kaltura/playkit-js-bumper/issues/62)) ([fb0461e](https://github.com/kaltura/playkit-js-bumper/commit/fb0461e))
+
+
+
 ### [2.0.3](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.2...v2.0.3) (2020-11-22)
 
 
