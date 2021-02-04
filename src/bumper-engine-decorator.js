@@ -3,7 +3,7 @@ import {core} from 'kaltura-player-js';
 import {Bumper, BumperBreakType} from './bumper';
 import {BumperState} from './bumper-state';
 
-const {FakeEvent, EventType, EngineDecoratorPriority} = core;
+const {FakeEvent, EventType} = core;
 
 /**
  * Engine decorator for bumper plugin.
@@ -21,10 +21,6 @@ class BumperEngineDecorator implements IEngineDecorator {
 
   get active(): boolean {
     return this._plugin.playOnMainVideoTag() && (this._plugin.isAdPlaying() || this._plugin.state === BumperState.LOADING);
-  }
-
-  get priority(): number {
-    return EngineDecoratorPriority.PREFERRED;
   }
 
   dispatchEvent(event: FakeEvent): boolean {
