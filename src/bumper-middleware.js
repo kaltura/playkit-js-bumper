@@ -36,7 +36,10 @@ class BumperMiddleware extends BaseMiddleware {
   load(next: Function): void {
     this._nextLoad = next;
     this._context.eventManager.listenOnce(this._context.player, EventType.AD_ERROR, () => this._callNextLoad());
-    if (this._context.adBreakPosition === BumperBreakType.PREROLL && !this._context.playOnMainVideoTag()) {
+    if (
+      this._context.adBreakPosition === BumperBreakType.PREROLL &&
+      !(this._context.playOnMainVideoTag() && this._context.player.getVideoElement().src)
+    ) {
       this._context.load();
     }
     if (!(this._context.config.url && this._context.config.position.includes(BumperBreakType.PREROLL))) {
