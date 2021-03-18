@@ -399,18 +399,20 @@ describe('Bumper', () => {
       eventManager.listen(player, player.Event.AD_LOADED, () => {
         counter++;
       });
-      eventManager.listenOnce(player, player.Event.PLAYING, () => {
-        eventManager.listenOnce(player, player.Event.ENDED, () => {
-          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-            try {
-              counter.should.equal(1);
-              done();
-            } catch (e) {
-              done(e);
-            }
+      eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
+        eventManager.listenOnce(player, player.Event.PLAYING, () => {
+          eventManager.listenOnce(player, player.Event.ENDED, () => {
+            eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+              try {
+                counter.should.equal(1);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            });
           });
+          player.currentTime = player.duration;
         });
-        player.currentTime = player.duration;
       });
       player.configure({sources});
       setTimeout(() => player.play(), 1000);
@@ -421,18 +423,20 @@ describe('Bumper', () => {
       eventManager.listen(player, player.Event.AD_LOADED, () => {
         counter++;
       });
-      eventManager.listenOnce(player, player.Event.PLAYING, () => {
-        eventManager.listenOnce(player, player.Event.ENDED, () => {
-          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-            try {
-              counter.should.equal(1);
-              done();
-            } catch (e) {
-              done(e);
-            }
+      eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
+        eventManager.listenOnce(player, player.Event.PLAYING, () => {
+          eventManager.listenOnce(player, player.Event.ENDED, () => {
+            eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+              try {
+                counter.should.equal(1);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            });
           });
+          player.currentTime = player.duration;
         });
-        player.currentTime = player.duration;
       });
       player.configure({
         playback: {
@@ -692,39 +696,41 @@ describe('Bumper', () => {
                     eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
                       eventManager.listenOnce(player, player.Event.AD_BREAK_END, () => {
                         eventManager.listenOnce(player, player.Event.PLAYING, () => {
-                          eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
-                            try {
-                              validateAdBreakParams(event, false);
-                            } catch (e) {
-                              done(e);
-                            }
-                            eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
+                          eventManager.listenOnce(player, player.Event.AD_LOADED, () => {
+                            eventManager.listenOnce(player, player.Event.AD_BREAK_START, event => {
                               try {
-                                validateAdParams(event, true);
+                                validateAdBreakParams(event, false);
                               } catch (e) {
                                 done(e);
                               }
-                              eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
+                              eventManager.listenOnce(player, player.Event.AD_STARTED, event => {
                                 try {
-                                  validateAdProgressParams(event);
+                                  validateAdParams(event, true);
                                 } catch (e) {
                                   done(e);
                                 }
-                                eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
-                                  eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
-                                    eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
-                                      eventManager.listenOnce(player, player.Event.AD_BREAK_END, () => {
-                                        eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-                                          eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
-                                            done();
+                                eventManager.listenOnce(player, player.Event.AD_PROGRESS, event => {
+                                  try {
+                                    validateAdProgressParams(event);
+                                  } catch (e) {
+                                    done(e);
+                                  }
+                                  eventManager.listenOnce(player, player.Event.AD_PAUSED, () => {
+                                    eventManager.listenOnce(player, player.Event.AD_RESUMED, () => {
+                                      eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
+                                        eventManager.listenOnce(player, player.Event.AD_BREAK_END, () => {
+                                          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+                                            eventManager.listenOnce(player, player.Event.PLAYBACK_ENDED, () => {
+                                              done();
+                                            });
                                           });
                                         });
                                       });
                                     });
+                                    player.play();
                                   });
-                                  player.play();
+                                  player.pause();
                                 });
-                                player.pause();
                               });
                             });
                           });
@@ -997,18 +1003,20 @@ describe('Bumper', () => {
       eventManager.listen(player, player.Event.AD_LOADED, () => {
         counter++;
       });
-      eventManager.listenOnce(player, player.Event.PLAYING, () => {
-        eventManager.listenOnce(player, player.Event.ENDED, () => {
-          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-            try {
-              counter.should.equal(2);
-              done();
-            } catch (e) {
-              done(e);
-            }
+      eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
+        eventManager.listenOnce(player, player.Event.PLAYING, () => {
+          eventManager.listenOnce(player, player.Event.ENDED, () => {
+            eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+              try {
+                counter.should.equal(2);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            });
           });
+          player.currentTime = player.duration;
         });
-        player.currentTime = player.duration;
       });
       player.configure({sources});
       setTimeout(() => player.play(), 1000);
@@ -1019,18 +1027,20 @@ describe('Bumper', () => {
       eventManager.listen(player, player.Event.AD_LOADED, () => {
         counter++;
       });
-      eventManager.listenOnce(player, player.Event.PLAYING, () => {
-        eventManager.listenOnce(player, player.Event.ENDED, () => {
-          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-            try {
-              counter.should.equal(2);
-              done();
-            } catch (e) {
-              done(e);
-            }
+      eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
+        eventManager.listenOnce(player, player.Event.PLAYING, () => {
+          eventManager.listenOnce(player, player.Event.ENDED, () => {
+            eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+              try {
+                counter.should.equal(2);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            });
           });
+          player.currentTime = player.duration;
         });
-        player.currentTime = player.duration;
       });
       player.configure({
         playback: {
