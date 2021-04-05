@@ -1,22 +1,46 @@
 {
   "name": "@playkit-js/playkit-js-bumper",
   "version": "2.0.4",
+  "keywords": [
+    "ad",
+    "bumper",
+    "monetization",
+    "kaltura",
+    "player",
+    "playkit-js",
+    "playkit-js-bumper",
+    "html5 player"
+  ],
+  "homepage": "https://github.com/kaltura/playkit-js-bumper",
+  "bugs": {
+    "url": "https://github.com/kaltura/playkit-js-bumper/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaltura/playkit-js-bumper"
+  },
+  "license": "AGPL-3.0",
   "main": "dist/playkit-bumper.js",
   "scripts": {
-    "clean": "rm -rf ./dist",
     "prebuild": "npm run clean",
     "build": "webpack --mode production",
+    "clean": "rm -rf ./dist",
     "dev": "webpack-dev-server --mode development",
-    "watch": "webpack --progress --colors --watch --mode development",
-    "test": "NODE_ENV=test karma start --color --mode development",
-    "release": "standard-version",
-    "pushTaggedRelease": "git push --follow-tags --no-verify origin master",
+    "docs:generate": "documentation build flow-typed/** src/** -f md -o docs/api.md",
+    "docs:serve": "documentation serve flow-typed/** src/** --watch",
     "eslint": "eslint . --color",
     "flow": "flow check",
     "precommit": "lint-staged",
-    "docs:generate": "documentation build flow-typed/** src/** -f md -o docs/api.md",
-    "docs:serve": "documentation serve flow-typed/** src/** --watch",
-    "prettier:fix": "prettier --write ."
+    "prettier:fix": "prettier --write .",
+    "pushTaggedRelease": "git push --follow-tags --no-verify origin master",
+    "release": "standard-version",
+    "test": "NODE_ENV=test karma start --color --mode development",
+    "watch": "webpack --progress --colors --watch --mode development"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
     "*.{js,jsx}": [
@@ -27,10 +51,6 @@
       "prettier --write",
       "git add"
     ]
-  },
-  "publishConfig": {
-    "cache": "~/.npm",
-    "access": "public"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
@@ -88,25 +108,10 @@
     "@playkit-js/playkit-js": "0.63.0",
     "kaltura-player-js": "https://github.com/kaltura/kaltura-player-js.git#v1.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kaltura/playkit-js-bumper"
+  "publishConfig": {
+    "access": "public",
+    "cache": "~/.npm"
   },
-  "keywords": [
-    "ad",
-    "bumper",
-    "monetization",
-    "kaltura",
-    "player",
-    "playkit-js",
-    "playkit-js-bumper",
-    "html5 player"
-  ],
-  "license": "AGPL-3.0",
-  "bugs": {
-    "url": "https://github.com/kaltura/playkit-js-bumper/issues"
-  },
-  "homepage": "https://github.com/kaltura/playkit-js-bumper",
   "kcc": {
     "name": "playkit-bumper"
   }

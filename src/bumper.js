@@ -71,6 +71,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _selectedAudioTrack: AudioTrack;
   _selectedTextTrack: TextTrack;
   _selectedPlaybackRate: number;
+  _isPlayerFullscreen: boolean = false;
 
   /**
    * @constructor
@@ -198,9 +199,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   playOnMainVideoTag(): boolean {
-    return (
-      this.config.playOnMainVideoTag || (Env.os.name === 'iOS' && this.player.isFullscreen() && !this.player.config.playback.inBrowserFullscreen)
-    );
+    return this.config.playOnMainVideoTag || (Env.os.name === 'iOS' && this._isPlayerFullscreen && !this.player.config.playback.inBrowserFullscreen);
   }
 
   getContentTime(): number {
@@ -354,6 +353,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => this._onPlayerTimeUpdate());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
+    this.eventManager.listen(this.player, EventType.ENTER_FULLSCREEN, () => (this._isPlayerFullscreen = true));
     this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
   }
 
@@ -469,6 +469,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onPlayerExitFullscreen(): void {
+    this._isPlayerFullscreen = false;
     if (this._adBreak && Env.os.name === 'iOS' && this.player.config.playback.playsinline) {
       this.play();
     }
