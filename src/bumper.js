@@ -199,9 +199,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   playOnMainVideoTag(): boolean {
-    return (
-      this.config.playOnMainVideoTag || (Env.os.name === 'iOS' && this._isPlayerFullscreen && !this.player.config.playback.inBrowserFullscreen)
-    );
+    return this.config.playOnMainVideoTag || (Env.os.name === 'iOS' && this._isPlayerFullscreen && !this.player.config.playback.inBrowserFullscreen);
   }
 
   getContentTime(): number {
@@ -355,7 +353,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => this._onPlayerTimeUpdate());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
-    this.eventManager.listen(this.player, EventType.ENTER_FULLSCREEN, () => this._isPlayerFullscreen = true);
+    this.eventManager.listen(this.player, EventType.ENTER_FULLSCREEN, () => (this._isPlayerFullscreen = true));
     this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
   }
 
@@ -390,12 +388,12 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _onTimeUpdate(): void {
     this._adBreak &&
-    this.dispatchEvent(EventType.AD_PROGRESS, {
-      adProgress: {
-        currentTime: this._videoElement.currentTime,
-        duration: this._videoElement.duration
-      }
-    });
+      this.dispatchEvent(EventType.AD_PROGRESS, {
+        adProgress: {
+          currentTime: this._videoElement.currentTime,
+          duration: this._videoElement.duration
+        }
+      });
   }
 
   _onError(): void {
