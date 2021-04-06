@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.5](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.4...v2.0.5) (2021-04-06)
+
+
+### Bug Fixes
+
+* **FEC-11005:** Bumper doesn't work with playAdsWithMSE config ([#69](https://github.com/kaltura/playkit-js-bumper/issues/69)) ([cb8284b](https://github.com/kaltura/playkit-js-bumper/commit/cb8284b))
+* **FEC-11062:** ad layout doesn't work when IMA DAI configured ([#66](https://github.com/kaltura/playkit-js-bumper/issues/66)) ([29e808f](https://github.com/kaltura/playkit-js-bumper/commit/29e808f))
+* **FEC-11120:** the player doesn't loads on iPhones, if playsinline=true ([#71](https://github.com/kaltura/playkit-js-bumper/issues/71)) ([381910e](https://github.com/kaltura/playkit-js-bumper/commit/381910e))
+
+
+
 ### [2.0.4](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.3...v2.0.4) (2020-12-07)
 
 
