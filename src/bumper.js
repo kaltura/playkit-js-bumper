@@ -387,13 +387,14 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _onTimeUpdate(): void {
-    this._adBreak &&
+    if (this._adBreak && this._bumperState !== BumperState.LOADING) {
       this.dispatchEvent(EventType.AD_PROGRESS, {
         adProgress: {
           currentTime: this._videoElement.currentTime,
           duration: this._videoElement.duration
         }
       });
+    }
   }
 
   _onError(): void {
