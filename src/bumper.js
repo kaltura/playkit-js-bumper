@@ -221,7 +221,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   onEnded(): void {
     if (this._adBreak) {
-      this._state = BumperState.LOADED;
+      this._state = BumperState.IDLE;
       this._adBreak = false;
       this._hideElement(this._bumperContainerDiv);
       this.dispatchEvent(EventType.AD_COMPLETED);
@@ -364,9 +364,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _onPlaying(): void {
     if (this._adBreak) {
       if (this._bumperState === BumperState.LOADED) {
-        if (this._getAdBreak().type === AdBreakType.POST) {
-          this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
-        }
         this.dispatchEvent(EventType.AD_STARTED, {ad: this._getAd()});
       }
       if (this._bumperState === BumperState.PAUSED) {
