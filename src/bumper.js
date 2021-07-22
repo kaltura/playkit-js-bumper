@@ -350,11 +350,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.SOURCE_SELECTED, () => this._onPlayerSourceSelected());
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.PLAYBACK_ENDED, () => this._onPlayerPlaybackEnded());
-    this.eventManager.listenOnce(this.player, EventType.TIME_UPDATE, () => this._onPlayerTimeUpdate());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
     this.eventManager.listen(this.player, EventType.ENTER_FULLSCREEN, () => (this._isPlayerFullscreen = true));
     this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
+    if (this.config.position[0] === BumperBreakType.POSTROLL) {
+      this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => this._onPlayerTimeUpdate());
+    }
   }
 
   _onLoadedData(): void {
