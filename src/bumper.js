@@ -354,7 +354,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
     this.eventManager.listen(this.player, EventType.ENTER_FULLSCREEN, () => (this._isPlayerFullscreen = true));
     this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
-    if (this.config.position[0] === BumperBreakType.POSTROLL) {
+    if (this.config.position.length === 1 && this.config.position[0] === BumperBreakType.POSTROLL) {
       this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => this._onPlayerTimeUpdate());
     }
   }
