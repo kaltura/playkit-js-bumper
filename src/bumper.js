@@ -239,6 +239,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       this.playOnMainVideoTag() && (this._state = BumperState.IDLE);
       this.initBumperCompletedPromise();
       this.play();
+      if (this._bumperState === BumperState.LOADED && this.config.position.length === 2) {
+        this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
+      }
     }
   }
 
@@ -437,6 +440,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _onPlayerTimeUpdate(): void {
     if (this.player.currentTime >= this.player.duration - TIME_FOR_PRELOAD && !this.playOnMainVideoTag()) {
       this.load();
+      this.eventManager.unlisten(this.player, EventType.TIME_UPDATE);
     }
   }
 
@@ -517,8 +521,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
         this._bumperVideoElement.src = this.config.url;
         this._bumperVideoElement.setAttribute('playsinline', '');
       }
-    } else if (this._bumperState === BumperState.LOADED) {
-      this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
     }
   }
 
