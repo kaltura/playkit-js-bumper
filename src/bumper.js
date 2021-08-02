@@ -238,10 +238,14 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     if (this._bumperState !== BumperState.DONE) {
       this.playOnMainVideoTag() && (this._state = BumperState.IDLE);
       this.initBumperCompletedPromise();
+      this._mimicAdLoadedEvent();
       this.play();
-      if (this._bumperState === BumperState.LOADED && this.config.position.length === 2) {
-        this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
-      }
+    }
+  }
+
+  _mimicAdLoadedEvent() {
+    if (this._bumperState === BumperState.LOADED) {
+      this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
     }
   }
 
