@@ -394,12 +394,37 @@ describe('Bumper', () => {
       player.play();
     });
 
+    it('Should fire AD_LOADED once - preload true and and post-roll position', done => {
+      let counter = 0;
+      eventManager.listen(player, player.Event.AD_LOADED, () => {
+        counter++;
+      });
+            eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+              try {
+                counter.should.equal(1);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            });
+          player.currentTime = player.duration;
+      player.configure({
+        plugins: {
+          bumper: {
+            preload: 'auto',
+            position: [BumperBreakType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
     it('Should fire AD_LOADED once - preload false and pre-roll position', done => {
       let counter = 0;
       eventManager.listen(player, player.Event.AD_LOADED, () => {
         counter++;
       });
-      eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
         eventManager.listenOnce(player, player.Event.PLAYING, () => {
           eventManager.listenOnce(player, player.Event.ENDED, () => {
             eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
@@ -413,48 +438,15 @@ describe('Bumper', () => {
           });
           player.currentTime = player.duration;
         });
-      });
       player.configure({
         plugins: {
           bumper: {
-            position: [BumperBreakType.PREROLL]
-          }
-        },
-        sources
-      });
-      setTimeout(() => player.play(), 1000);
-    });
-
-    it('Should fire AD_LOADED once - preload true and and post-roll position', done => {
-      let counter = 0;
-      eventManager.listen(player, player.Event.AD_LOADED, () => {
-        counter++;
-      });
-      eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
-        eventManager.listenOnce(player, player.Event.PLAYING, () => {
-          eventManager.listenOnce(player, player.Event. ENDED, () => {
-            eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-              try {
-                counter.should.equal(1);
-                done();
-              } catch (e) {
-                done(e);
-              }
-            });
-          });
-          player.currentTime = player.duration;
-        });
-      });
-      player.configure({
-        plugins: {
-          bumper: {
-            preload: 'auto',
             position: [BumperBreakType.POSTROLL]
           }
         },
         sources
       });
-      setTimeout(() => player.play(), 1000);
+      player.play();
     });
 
     it('Should fire AD_LOADED twice - both - pre-roll & post-roll position', done => {
@@ -464,7 +456,7 @@ describe('Bumper', () => {
       });
       eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
         eventManager.listenOnce(player, player.Event.PLAYING, () => {
-          eventManager.listenOnce(player, player.Event. ENDED, () => {
+          eventManager.listenOnce(player, player.Event.ENDED, () => {
             eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
               try {
                 counter.should.equal(2);
