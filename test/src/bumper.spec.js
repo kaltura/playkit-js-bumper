@@ -399,15 +399,15 @@ describe('Bumper', () => {
       eventManager.listen(player, player.Event.AD_LOADED, () => {
         counter++;
       });
-            eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-              try {
-                counter.should.equal(1);
-                done();
-              } catch (e) {
-                done(e);
-              }
-            });
-          player.currentTime = player.duration;
+      eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+        try {
+          counter.should.equal(1);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+      player.currentTime = player.duration;
       player.configure({
         plugins: {
           bumper: {
@@ -425,19 +425,19 @@ describe('Bumper', () => {
       eventManager.listen(player, player.Event.AD_LOADED, () => {
         counter++;
       });
-        eventManager.listenOnce(player, player.Event.PLAYING, () => {
-          eventManager.listenOnce(player, player.Event.ENDED, () => {
-            eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
-              try {
-                counter.should.equal(1);
-                done();
-              } catch (e) {
-                done(e);
-              }
-            });
+      eventManager.listenOnce(player, player.Event.PLAYING, () => {
+        eventManager.listenOnce(player, player.Event.ENDED, () => {
+          eventManager.listenOnce(player, player.Event.ALL_ADS_COMPLETED, () => {
+            try {
+              counter.should.equal(1);
+              done();
+            } catch (e) {
+              done(e);
+            }
           });
-          player.currentTime = player.duration;
         });
+        player.currentTime = player.duration;
+      });
       player.configure({
         plugins: {
           bumper: {
