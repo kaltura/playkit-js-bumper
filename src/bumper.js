@@ -238,7 +238,14 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     if (this._bumperState !== BumperState.DONE) {
       this.playOnMainVideoTag() && (this._state = BumperState.IDLE);
       this.initBumperCompletedPromise();
+      this._mimicAdLoadedEvent();
       this.play();
+    }
+  }
+
+  _mimicAdLoadedEvent() {
+    if (this._bumperState === BumperState.LOADED) {
+      this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
     }
   }
 
@@ -350,11 +357,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this.eventManager.listen(this.player, EventType.SOURCE_SELECTED, () => this._onPlayerSourceSelected());
     this.eventManager.listen(this.player, EventType.PLAYBACK_START, () => this._onPlayerPlaybackStart());
     this.eventManager.listen(this.player, EventType.PLAYBACK_ENDED, () => this._onPlayerPlaybackEnded());
-    this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => this._onPlayerTimeUpdate());
     this.eventManager.listen(this.player, EventType.VOLUME_CHANGE, () => this._onPlayerVolumeChange());
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => this._onPlayerMuteChange(event));
     this.eventManager.listen(this.player, EventType.ENTER_FULLSCREEN, () => (this._isPlayerFullscreen = true));
     this.eventManager.listen(this.player, EventType.EXIT_FULLSCREEN, () => this._onPlayerExitFullscreen());
+    if (this.config.position.length === 1 && this.config.position[0] === BumperBreakType.POSTROLL) {
+      this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => this._onPlayerTimeUpdate());
+    }
   }
 
   _onLoadedData(): void {
@@ -435,6 +444,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _onPlayerTimeUpdate(): void {
     if (this.player.currentTime >= this.player.duration - TIME_FOR_PRELOAD && !this.playOnMainVideoTag()) {
       this.load();
+      this.eventManager.unlisten(this.player, EventType.TIME_UPDATE);
     }
   }
 
@@ -538,7 +548,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return new Ad(this.config.id, adOptions);
   }
 
-  _getAdBreak(): Ad {
+  _getAdBreak(): AdBreak {
     const type = this._adBreakPosition === BumperBreakType.PREROLL ? AdBreakType.PRE : AdBreakType.POST;
     return new AdBreak({type, position: this._adBreakPosition, numAds: 1});
   }
