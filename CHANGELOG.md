@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.7](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.6...v2.0.7) (2021-08-26)
+
+
+### Bug Fixes
+
+* **FEC-10692:** Youbora is missing some ad properties of post bumper ([#82](https://github.com/kaltura/playkit-js-bumper/issues/82)) ([d2e36cc](https://github.com/kaltura/playkit-js-bumper/commit/d2e36cc))
+
+
+### Build System
+
+* **FEC-10700:** Improvement for CI/CD ([#80](https://github.com/kaltura/playkit-js-bumper/issues/80)) ([b5808d2](https://github.com/kaltura/playkit-js-bumper/commit/b5808d2))
+* **FEC-11389:** reduce builds from travis ([1764044](https://github.com/kaltura/playkit-js-bumper/commit/1764044))
+
+
+
 ### [2.0.6](https://github.com/kaltura/playkit-js-bumper/compare/v2.0.5...v2.0.6) (2021-05-04)
 
 
