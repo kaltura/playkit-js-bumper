@@ -55,9 +55,9 @@ Finally, add the bundle as a script tag in your page, and initialize the player
      ...
      targetId: 'player-placeholder',
      plugins: {
-       		"bumper": {
-					"url": "<BUMPER URL>"
-				}
+       "bumper": {
+			   "url": "<BUMPER URL>"
+			}
      }
      ...
     };
