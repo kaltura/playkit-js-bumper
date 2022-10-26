@@ -79,16 +79,27 @@ Allow the player to display a short clip before main entry. (Channel id, Sponsor
 In order to enable the plugin you can give the folowing config parameters while `url` it the only "must" key to make the plugin work
 
 ####id
+
 default = '' - The bumper container div id 
+
 #### url 
+
 the url of the bumber video
+
 ####clickThroughUrl
+
 url to a website that will be opened when clicking on the bumper screen
+
 ####position
+
 default [0] - bumper before video playback, it receives an array that configured wheter bumper will be shown on playback start, playback end or both =>  [0], [-1], [0, -1]
+
 ####disableMediaPreload
+
 default = false, when using main video tag we will want it to be true
+
 ####playOnMainVideoTag
+
 default = false, may be used as true on TV's, ios plays inline = false or ios native full screen mode.
 
 #### Default Config Example
