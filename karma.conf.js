@@ -3,7 +3,7 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     browserDisconnectTimeout: 30000,
     browserNoActivityTimeout: 60000,
-   // customLaunchers: launchers,
+    //customLaunchers: launchers,
     browsers: [],
     concurrency: 1,
     singleRun: true,
