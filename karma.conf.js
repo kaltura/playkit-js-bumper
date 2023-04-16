@@ -1,10 +1,25 @@
+// Create custom launcher in case running with Travis
+const customLaunchers = {
+  Chrome_travis_ci: {
+    base: 'Chrome',
+    flags: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required']
+  }
+};
+
+const launchers = {
+  Chrome_browser: {
+    base: 'Chrome',
+    flags: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required']
+  }
+};
+
 module.exports = function (config) {
   let karmaConf = {
     logLevel: config.LOG_INFO,
     browserDisconnectTimeout: 30000,
     browserNoActivityTimeout: 60000,
-    //customLaunchers: launchers,
-    browsers: [],
+    customLaunchers: launchers,
+    browsers: ['Chrome_browser'],
     concurrency: 1,
     singleRun: true,
     colors: true,
@@ -32,8 +47,16 @@ module.exports = function (config) {
     }
   };
 
-  //karmaConf.customLaunchers = launchers;
-  karmaConf.browsers.push('ChromeHeadless');
+  //if (process.env.TRAVIS) {
+  karmaConf.customLaunchers = customLaunchers;
+  karmaConf.browsers = ['Chrome_travis_ci'];
+  //} else {
+  //  if (isWindows) {
+  //    karmaConf.browsers.push('IE');
+  //  } else if (isMacOS) {
+  //    karmaConf.browsers.push('Safari');
+  //  }
+  //}
 
   config.set(karmaConf);
 };
