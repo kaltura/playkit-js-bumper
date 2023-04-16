@@ -1,6 +1,6 @@
 const launchers = {
   Chrome_browser: {
-    base: 'Chrome',
+    base: 'ChromeHeadless',
     flags: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required']
   }
 };
@@ -39,6 +39,7 @@ module.exports = function (config) {
     }
   };
 
+  karmaConf.customLaunchers = launchers;
   karmaConf.browsers.push('ChromeHeadless');
 
   config.set(karmaConf);
