@@ -49,7 +49,7 @@ module.exports = function (config) {
 
   //if (process.env.TRAVIS) {
   karmaConf.customLaunchers = customLaunchers;
-  karmaConf.browsers = ['Chrome_travis_ci'];
+  karmaConf.browsers = ['ChromeHeadless'];
   //} else {
   //  if (isWindows) {
   //    karmaConf.browsers.push('IE');
