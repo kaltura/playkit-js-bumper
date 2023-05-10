@@ -1,4 +1,4 @@
-import {core, setup} from 'kaltura-player-js';
+import {core, setup} from '@playkit-js/kaltura-player-js';
 // eslint-disable-next-line no-unused-vars
 import bumper from '../../src';
 import {BumperBreakType} from '../../src/bumper';
