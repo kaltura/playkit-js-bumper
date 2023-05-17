@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 2.0.9 (2023-05-17)
+
+
+### Bug Fixes
+
+* **FEC-13123:** replace travis with github actions ([#106](https://github.com/kaltura/playkit-js-bumper/issues/106)) ([fd4258f](https://github.com/kaltura/playkit-js-bumper/commit/fd4258f))
+
+
+
 ### 2.0.8 (2023-05-03)
 
 
