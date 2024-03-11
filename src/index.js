@@ -10,6 +10,7 @@ const NAME = __NAME__;
 
 export {Bumper as Plugin};
 export {VERSION, NAME};
+export {BumperEvents} from './events';
 
 const pluginName: string = 'bumper';
 

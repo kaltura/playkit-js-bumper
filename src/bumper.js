@@ -5,6 +5,7 @@ import {BumperState} from './bumper-state';
 import {BumperAdsController} from './bumper-ads-controller';
 import {BumperEngineDecorator} from './bumper-engine-decorator';
 import './assets/style.css';
+import {BumperEvents} from './events';
 
 const {BaseMiddleware, Utils, Error, FakeEvent, EventType, Ad, AdBreak, AdBreakType, AudioTrack, TextTrack, Env} = core;
 /**
@@ -296,6 +297,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._bumperClickThroughDiv.target = '_blank';
     this._bumperClickThroughDiv.onclick = () => {
       this.config.clickThroughUrl && this.dispatchEvent(EventType.AD_CLICKED);
+      this.dispatchEvent(BumperEvents.BUMPER_CLICKED);
       this.pause();
       this._showElement(this._bumperCoverDiv);
     };
