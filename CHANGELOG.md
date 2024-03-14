@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 2.0.11 (2024-03-14)
+
+
+### Bug Fixes
+
+* **FEC-13743:** [Bumper Plugin]: Add Events (used by kava analytics) ([#111](https://github.com/kaltura/playkit-js-bumper/issues/111)) ([13a5907](https://github.com/kaltura/playkit-js-bumper/commit/13a5907)), closes [kaltura/playkit-js-kava#156](https://github.com/kaltura/playkit-js-bumper/issues/156)
+
+
+
 ### 2.0.10 (2023-06-28)
 
 
