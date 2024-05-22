@@ -297,7 +297,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._bumperClickThroughDiv.target = '_blank';
     this._bumperClickThroughDiv.onclick = () => {
       this.config.clickThroughUrl && this.dispatchEvent(EventType.AD_CLICKED);
-      this.dispatchEvent(BumperEvents.BUMPER_CLICKED);
+      this.dispatchEvent(BumperEvents.BUMPER_CLICKED, {clickThroughUrl: this.config.clickThroughUrl});
       this.pause();
       this._showElement(this._bumperCoverDiv);
     };
