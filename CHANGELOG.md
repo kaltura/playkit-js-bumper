@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 2.0.12 (2024-06-02)
+
+
+### Bug Fixes
+
+* **FEC-13932:** Application events analytics reporting to kava | "Bumper_click" event missing bumper url - buttonValue is empty. ([#112](https://github.com/kaltura/playkit-js-bumper/issues/112)) ([d90895d](https://github.com/kaltura/playkit-js-bumper/commit/d90895d))
+
+
+
 ### 2.0.11 (2024-03-14)
 
 
