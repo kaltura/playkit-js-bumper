@@ -73,6 +73,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _selectedTextTrack: TextTrack;
   _selectedPlaybackRate: number;
   _isPlayerFullscreen: boolean = false;
+  _initialConfig: Object | null = null;
 
   /**
    * @constructor
@@ -95,6 +96,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    */
   updateConfig(update: Object): void {
     super.updateConfig(update);
+    this._initialConfig = {...this.config};
     this._updateConfigFromMetadata();
     this._validatePosition();
     this._setClickThroughUrl();
@@ -584,6 +586,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._resetClickThroughElement();
     Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
     this._initMembers();
+    this.config = {...this._initialConfig};
   }
 }
 
