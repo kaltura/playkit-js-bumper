@@ -98,7 +98,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   updateConfig(update: Object): void {
     super.updateConfig(update);
     this._initialConfig = {...this.config};
-    if (this.config.useConfigFromMetadata){
+    if (this.config.useConfigFromMetadata) {
       this._updateConfigFromMetadata();
     }
     this._validatePosition();
