@@ -45,7 +45,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     clickThroughUrl: '',
     position: DEFAULT_POSITION,
     disableMediaPreload: false,
-    playOnMainVideoTag: false
+    playOnMainVideoTag: false,
+    useConfigFromMetadata: false
   };
 
   /**
@@ -97,7 +98,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   updateConfig(update: Object): void {
     super.updateConfig(update);
     this._initialConfig = {...this.config};
-    this._updateConfigFromMetadata();
+    if (this.config.useConfigFromMetadata) {
+      this._updateConfigFromMetadata();
+    }
     this._validatePosition();
     this._setClickThroughUrl();
   }
