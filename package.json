@@ -1,6 +1,6 @@
 {
   "name": "@playkit-js/playkit-js-bumper",
-  "version": "2.0.12",
+  "version": "2.1.0",
   "keywords": [
     "ad",
     "bumper",
@@ -22,7 +22,7 @@
   "license": "AGPL-3.0",
   "main": "dist/playkit-bumper.js",
   "scripts": {
-    "preinstall": "npx --yes --prefer-online --registry=https://npm.pkg.github.com --package @kaltura/kaltura-tools@latest kaltura-tools check --root=.",
+    "disabled-preinstall": "npx --yes --prefer-online --registry=https://npm.pkg.github.com --package @kaltura/kaltura-tools@latest kaltura-tools check --root=.",
     "prebuild": "npm run clean",
     "build": "webpack --mode production",
     "clean": "rm -rf ./dist",

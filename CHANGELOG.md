@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 2.1.0 (2025-12-31)
+
+
+### Features
+
+* **FEC-14789:** Per entry bumper video ([#116](https://github.com/kaltura/playkit-js-bumper/issues/116)) ([7906312](https://github.com/kaltura/playkit-js-bumper/commit/7906312))
+
+
+
 ### 2.0.12 (2024-06-02)
 
 
