@@ -341,8 +341,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
 
   _updateConfigFromMetadata(): void {
     const metadata = this.player?.sources?.metadata || {};
-    if (metadata.BumperURL) {
-      this.config.url = metadata.BumperURL;
+    if (metadata.BumperUrl) {
+      this.config.url = metadata.BumperUrl;
     }
     if (metadata.BumperPosition) {
       this.config.position = metadata.BumperPosition.split(',').map(Number);
