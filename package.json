@@ -62,6 +62,7 @@
     "@babel/preset-flow": "^7.10.4",
     "@babel/register": "^7.10.5",
     "@playkit-js/playkit-js": "latest",
+    "@playkit-js/playkit-js-providers": "latest",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
@@ -79,7 +80,7 @@
     "flow-bin": "^0.129.0",
     "husky": "^4.2.5",
     "istanbul": "^0.4.5",
-    "@playkit-js/kaltura-player-js": "latest",
+    "@playkit-js/kaltura-player-js": "^3.17.25",
     "karma": "^5.1.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
@@ -107,7 +108,11 @@
   },
   "peerDependencies": {
     "@playkit-js/playkit-js": "latest",
-    "@playkit-js/kaltura-player-js": "latest"
+    "@playkit-js/playkit-js-providers": "latest",
+    "@playkit-js/kaltura-player-js": "^3.17.25"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.5.1"
   },
   "publishConfig": {
     "access": "public",
