@@ -1,7 +1,8 @@
 // @flow
-import {providers} from '@playkit-js/kaltura-player-js';
+import {ResponseTypes} from '@playkit-js/playkit-js-providers/ovp-provider';
+const {BaseServiceResult} = ResponseTypes;
+
 import {KalturaMetadata} from './kaltura-metadata';
-const {BaseServiceResult} = providers.ResponseTypes;
 
 export class KalturaMetadataListResponse extends BaseServiceResult {
   totalCount: number;

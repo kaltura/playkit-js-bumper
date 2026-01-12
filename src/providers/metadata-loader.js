@@ -1,17 +1,22 @@
 // @flow
 import {RequestBuilder} from '@playkit-js/playkit-js-providers/ovp-provider';
-// import {ILoader} from '@playkit-js/playkit-js-providers/dist/types';
 import {KalturaMetadata} from './response-types/kaltura-metadata';
 import {KalturaMetadataListResponse} from './response-types/kaltura-metadata-list-response';
+
+interface ILoader {
+  requests: Array<RequestBuilder>;
+  response: any;
+  isValid(): boolean;
+}
 
 interface MetadataLoaderParams {
   entryId: string;
   metadataProfileId: number;
 }
 
-interface MetadataResponse {
-  metadata: KalturaMetadata | null;
-}
+type MetadataResponse = {
+  metadata: KalturaMetadata | null
+};
 
 export class MetadataLoader implements ILoader {
   _entryId: string;
