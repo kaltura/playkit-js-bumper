@@ -100,7 +100,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @public
    * @returns {void}
    */
-  async updateConfig(update: Object): void {
+  updateConfig(update: Object): void {
     super.updateConfig(update);
     this._validatePosition();
     this._setClickThroughUrl();

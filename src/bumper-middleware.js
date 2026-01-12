@@ -33,7 +33,7 @@ class BumperMiddleware extends BaseMiddleware {
    * @param {Function} next - The load play handler in the middleware chain.
    * @returns {void}
    */
-  async load(next: Function): void {
+  load(next: Function): void {
     this._nextLoad = next;
     this._context.eventManager.listenOnce(this._context.player, EventType.AD_ERROR, () => this._callNextLoad());
     if (
