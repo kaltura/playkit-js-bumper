@@ -48,8 +48,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     clickThroughUrl: '',
     position: DEFAULT_POSITION,
     disableMediaPreload: false,
-    playOnMainVideoTag: false,
-    useConfigFromMetadata: false
+    playOnMainVideoTag: false
   };
 
   /**
@@ -103,10 +102,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    */
   async updateConfig(update: Object): void {
     super.updateConfig(update);
-    if (this.config.metadataProfileId && !this._metadataFetched) {
-      this._metadataPromise = this.handleMetadataUpdate();
-      await this._metadataPromise;
-    }
     this._validatePosition();
     this._setClickThroughUrl();
   }
@@ -224,7 +219,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   async loadMedia(): void {
-    if (this._metadataPromise && !this._metadataFetched) {
+    if (this.config.metadataProfileId && !this._metadataFetched) {
+      this._metadataPromise = this.handleMetadataUpdate();
       await this._metadataPromise;
     }
     if (this.config.url) {
@@ -374,7 +370,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     }
   }
 
-  async _getMetadataFromEntry(): Promise<KalturaMetadata | undefined | string> {
+  async _getMetadataFromEntry(): Promise<KalturaMetadata | string> {
     const entryId = this.player.sources.id;
     const ks = this.player.config.session?.ks || '';
     const metadataProfileId = this.config.metadataProfileId;
@@ -431,8 +427,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       positionArr = metadata.BumperPosition.split(',').map(Number);
     }
     this.config.position = positionArr;
+    this._adBreakPosition = this.config.position[0];
     if (metadata.BumperClickThroughUrl) {
       this.config.clickThroughUrl = metadata.BumperClickThroughUrl;
+      this._setClickThroughUrl();
     }
   }
 
