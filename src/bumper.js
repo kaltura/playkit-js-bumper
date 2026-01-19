@@ -375,7 +375,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     const ks = this.player.config.session?.ks || '';
     const metadataProfileId = this.config.metadataProfileId;
 
-    //@ts-ignore
     const data: Map<string, any> = await this.player.provider.doRequest([{loader: MetadataLoader, params: {entryId, metadataProfileId}}], ks);
     return this._parseDataFromResponse(data);
   }
@@ -397,25 +396,18 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _isValidBumperMetadata(metadata: any): boolean {
-    const hasBumperUrl = metadata.BumperUrl && metadata.BumperUrl.trim().length > 0;
-    let hasPosition = true;
-    if (metadata.BumperPosition) {
-      if (typeof metadata.BumperPosition === 'number') {
-        if (metadata.BumperPosition !== BumperBreakType.PREROLL && metadata.BumperPosition !== BumperBreakType.POSTROLL) {
-          hasPosition = false;
-        }
-      } else {
-        const position = metadata.BumperPosition.split(',').map(Number);
-        if (position.length === 2) {
-          if (position[0] !== BumperBreakType.PREROLL || position[1] !== BumperBreakType.POSTROLL) {
-            hasPosition = false;
-          }
-        } else {
-          hasPosition = false;
-        }
-      }
+    const hasBumperUrl = metadata.BumperUrl?.trim().length > 0;
+    const position = metadata.BumperPosition;
+    let hasValidPosition = false;
+
+    if (typeof position === 'number') {
+      hasValidPosition = position === BumperBreakType.PREROLL || position === BumperBreakType.POSTROLL;
+    } else if (typeof position === 'string') {
+      const postionArr = position.split(',').map(Number);
+      hasValidPosition = postionArr.length === 2 && postionArr[0] === BumperBreakType.PREROLL && postionArr[1] === BumperBreakType.POSTROLL;
     }
-    return hasBumperUrl && hasPosition;
+
+    return hasBumperUrl && hasValidPosition;
   }
 
   _updateConfigFromMetadata(metadata: any): void {

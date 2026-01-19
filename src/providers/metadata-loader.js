@@ -1,13 +1,8 @@
 // @flow
 import {RequestBuilder} from '@playkit-js/playkit-js-providers/ovp-provider';
+import {ILoader} from '@playkit-js/playkit-js-providers/ovp-provider';
 import {KalturaMetadata} from './response-types/kaltura-metadata';
 import {KalturaMetadataListResponse} from './response-types/kaltura-metadata-list-response';
-
-interface ILoader {
-  requests: Array<RequestBuilder>;
-  response: any;
-  isValid(): boolean;
-}
 
 interface MetadataLoaderParams {
   entryId: string;
