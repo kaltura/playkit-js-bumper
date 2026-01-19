@@ -6,6 +6,9 @@ import {BumperAdsController} from './bumper-ads-controller';
 import {BumperEngineDecorator} from './bumper-engine-decorator';
 import './assets/style.css';
 import {BumperEvents} from './events';
+import {MetadataLoader} from './providers/metadata-loader';
+import {KalturaMetadata} from './providers/response-types/kaltura-metadata';
+import {XMLParser} from 'fast-xml-parser';
 
 const {BaseMiddleware, Utils, Error, FakeEvent, EventType, Ad, AdBreak, AdBreakType, AudioTrack, TextTrack, Env} = core;
 /**
@@ -45,8 +48,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     clickThroughUrl: '',
     position: DEFAULT_POSITION,
     disableMediaPreload: false,
-    playOnMainVideoTag: false,
-    useConfigFromMetadata: false
+    playOnMainVideoTag: false
   };
 
   /**
@@ -75,6 +77,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _selectedPlaybackRate: number;
   _isPlayerFullscreen: boolean = false;
   _initialConfig: Object | null = null;
+  _validData: Boolean;
+  _metadataFetched: Boolean;
+  _metadataPromise: Promise<void> | null;
 
   /**
    * @constructor
@@ -97,10 +102,6 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    */
   updateConfig(update: Object): void {
     super.updateConfig(update);
-    this._initialConfig = {...this.config};
-    if (this.config.useConfigFromMetadata) {
-      this._updateConfigFromMetadata();
-    }
     this._validatePosition();
     this._setClickThroughUrl();
   }
@@ -217,7 +218,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return this._contentDuration;
   }
 
-  loadMedia(): void {
+  async loadMedia(): void {
+    if (this.config.metadataProfileId && !this._metadataFetched) {
+      this._metadataPromise = this.handleMetadataUpdate();
+      await this._metadataPromise;
+    }
     if (this.config.url) {
       this.dispatchEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: [...this.config.position]});
     } else {
@@ -321,6 +326,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._selectedTextTrack = null;
     this._selectedPlaybackRate = 1;
     this._state = BumperState.IDLE;
+    this._validData = true;
+    this._metadataFetched = false;
+    this._metadataPromise = null;
   }
 
   _setClickThroughUrl() {
@@ -339,16 +347,82 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._adBreakPosition = this.config.position[0];
   }
 
-  _updateConfigFromMetadata(): void {
-    const metadata = this.player?.sources?.metadata || {};
-    if (metadata.BumperURL) {
-      this.config.url = metadata.BumperURL;
+  async handleMetadataUpdate(): Promise<void> {
+    this._initialConfig = {...this.config};
+    let metadata;
+    try {
+      metadata = await this._getMetadataFromEntry();
+      if (metadata) {
+        this._validData = this._isValidBumperMetadata(metadata);
+        if (this._validData) {
+          this._updateConfigFromMetadata(metadata);
+        } else {
+          this._state = BumperState.DONE;
+          this._bumperCompletedPromise = Promise.resolve();
+          if (this.player.paused) {
+            this.player.play();
+          }
+        }
+      }
+      this._metadataFetched = true;
+    } catch (e) {
+      this.logger.debug('Get metadata from entry is failed');
     }
-    if (metadata.BumperPosition) {
-      this.config.position = metadata.BumperPosition.split(',').map(Number);
+  }
+
+  async _getMetadataFromEntry(): Promise<KalturaMetadata | string> {
+    const entryId = this.player.sources.id;
+    const ks = this.player.config.session?.ks || '';
+    const metadataProfileId = this.config.metadataProfileId;
+
+    const data: Map<string, any> = await this.player.provider.doRequest([{loader: MetadataLoader, params: {entryId, metadataProfileId}}], ks);
+    return this._parseDataFromResponse(data);
+  }
+
+  _parseDataFromResponse(data: Map<string, any>): KalturaMetadata {
+    let kalturaMetadata;
+    if (data) {
+      if (data.has(MetadataLoader.id)) {
+        const metadataLoader = data.get(MetadataLoader.id);
+        kalturaMetadata = metadataLoader?.response?.metadata;
+        if (kalturaMetadata?.xml) {
+          const parser = new XMLParser();
+          const parsedResult = parser.parse(kalturaMetadata.xml);
+          kalturaMetadata = parsedResult.metadata;
+        }
+      }
     }
+    return kalturaMetadata;
+  }
+
+  _isValidBumperMetadata(metadata: any): boolean {
+    const hasBumperUrl = metadata.BumperUrl?.trim().length > 0;
+    const position = metadata.BumperPosition;
+    let hasValidPosition = false;
+
+    if (typeof position === 'number') {
+      hasValidPosition = position === BumperBreakType.PREROLL || position === BumperBreakType.POSTROLL;
+    } else if (typeof position === 'string') {
+      const postionArr = position.split(',').map(Number);
+      hasValidPosition = postionArr.length === 2 && postionArr[0] === BumperBreakType.PREROLL && postionArr[1] === BumperBreakType.POSTROLL;
+    }
+
+    return hasBumperUrl && hasValidPosition;
+  }
+
+  _updateConfigFromMetadata(metadata: any): void {
+    this.config.url = metadata.BumperUrl;
+    let positionArr;
+    if (typeof metadata.BumperPosition === 'number') {
+      positionArr = [metadata.BumperPosition];
+    } else {
+      positionArr = metadata.BumperPosition.split(',').map(Number);
+    }
+    this.config.position = positionArr;
+    this._adBreakPosition = this.config.position[0];
     if (metadata.BumperClickThroughUrl) {
       this.config.clickThroughUrl = metadata.BumperClickThroughUrl;
+      this._setClickThroughUrl();
     }
   }
 
@@ -524,7 +598,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     Utils.Dom.removeAttribute(this._bumperClickThroughDiv, 'href');
   }
 
-  load(): void {
+  async load(): void {
+    if (this._metadataPromise && !this._metadataFetched) {
+      await this._metadataPromise;
+    }
     if (this._bumperState === BumperState.IDLE) {
       this.dispatchEvent(EventType.AD_LOADED, {ad: this._getAd()});
       this._state = BumperState.LOADING;
@@ -589,7 +666,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._resetClickThroughElement();
     Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
     this._initMembers();
-    this.config = {...this._initialConfig};
+    if (this.config.metadataProfileId) {
+      this.config = {...this._initialConfig};
+    }
   }
 }
 

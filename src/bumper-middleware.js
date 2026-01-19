@@ -54,7 +54,7 @@ class BumperMiddleware extends BaseMiddleware {
    * @param {Function} next - The next play handler in the middleware chain.
    * @returns {void}
    */
-  play(next: Function): void {
+  async play(next: Function): Promise<void> {
     if (this._isFirstPlay) {
       if (this._context.config.disableMediaPreload || this._context.playOnMainVideoTag()) {
         this._context.eventManager.listenOnce(this._context.player, EventType.AD_BREAK_END, () => this._callNextLoad());
@@ -71,6 +71,9 @@ class BumperMiddleware extends BaseMiddleware {
       case BumperState.IDLE:
       case BumperState.LOADING:
       case BumperState.LOADED: {
+        if (this._context._metadataPromise && !this._context._metadataFetched) {
+          await this._context._metadataPromise;
+        }
         if (this._context.config.url && this._context.adBreakPosition === BumperBreakType.PREROLL) {
           // preroll bumper
           this._context.initBumperCompletedPromise();
