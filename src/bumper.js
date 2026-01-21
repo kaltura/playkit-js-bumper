@@ -423,6 +423,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     if (metadata.BumperClickThroughUrl) {
       this.config.clickThroughUrl = metadata.BumperClickThroughUrl;
       this._setClickThroughUrl();
+    } else {
+      this.config.clickThroughUrl = '';
+      this._resetClickThroughElement();
     }
   }
 
