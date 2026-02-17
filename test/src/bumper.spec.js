@@ -629,7 +629,7 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_STARTED, () => {
         try {
           setTimeout(() => {
-            player.plugins.bumper._bumperVideoElement.style.visibility.should.equal('');
+            player.plugins.bumper._bumperVideoElement.style.display.should.equal('');
             done();
           });
         } catch (e) {
@@ -1192,7 +1192,7 @@ describe('Bumper', () => {
       eventManager.listenOnce(player, player.Event.AD_STARTED, () => {
         try {
           setTimeout(() => {
-            player.plugins.bumper._bumperVideoElement.style.visibility.should.equal('hidden');
+            player.plugins.bumper._bumperVideoElement.style.display.should.equal('none');
             done();
           });
         } catch (e) {
