@@ -5,7 +5,7 @@ run-name: Canary
 on:
   push:
     branches:
-      - FEC-14885
+      - master
 
 jobs:
   canary:
