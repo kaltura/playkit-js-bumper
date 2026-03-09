@@ -590,11 +590,11 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _showElement(el: ?HTMLElement): void {
-    el && el.style.removeProperty('visibility');
+    el && el.style.removeProperty('display');
   }
 
   _hideElement(el: ?HTMLElement): void {
-    el && (el.style.visibility = 'hidden');
+    el && (el.style.display = 'none');
   }
 
   _resetClickThroughElement(): void {
