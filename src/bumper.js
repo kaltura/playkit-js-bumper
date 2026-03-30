@@ -48,7 +48,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     clickThroughUrl: '',
     position: DEFAULT_POSITION,
     disableMediaPreload: false,
-    playOnMainVideoTag: false
+    playOnMainVideoTag: false,
+    isMetadataBased: false
   };
 
   /**
@@ -141,6 +142,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return new BumperAdsController(this);
   }
 
+  useMetadata(): boolean {
+    return this.config.isMetadataBased && !!this.config.metadataProfileId;
+  }
+
   /**
    * Play/Resume the bumper
    * @public
@@ -219,7 +224,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   async loadMedia(): void {
-    if (this.config.metadataProfileId && !this._metadataFetched) {
+    if (this.useMetadata() && !this._metadataFetched) {
       this._metadataPromise = this.handleMetadataUpdate();
       await this._metadataPromise;
     }
@@ -363,6 +368,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
             this.player.play();
           }
         }
+      } else {
+        this._state = BumperState.DONE;
       }
       this._metadataFetched = true;
     } catch (e) {
@@ -669,7 +676,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._resetClickThroughElement();
     Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
     this._initMembers();
-    if (this.config.metadataProfileId) {
+    if (this.useMetadata()) {
       this.config = {...this._initialConfig};
     }
   }
