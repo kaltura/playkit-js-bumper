@@ -49,7 +49,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     position: DEFAULT_POSITION,
     disableMediaPreload: false,
     playOnMainVideoTag: false,
-    isMetadataBased: false
+    useConfigFromMetadata: false
   };
 
   /**
@@ -143,7 +143,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   useMetadata(): boolean {
-    return this.config.isMetadataBased && !!this.config.metadataProfileId;
+    return this.config.useConfigFromMetadata && !!this.config.metadataProfileId;
   }
 
   /**
