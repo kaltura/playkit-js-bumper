@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 2.1.3 (2026-04-07)
+
+
+### Bug Fixes
+
+* **FEC-14915:** Add Per entry bumper video to Studio | Metadata based bumper video doesn't work at all. ([#124](https://github.com/kaltura/playkit-js-bumper/issues/124)) ([6680a53](https://github.com/kaltura/playkit-js-bumper/commit/6680a53))
+
+
+
 ### 2.1.2 (2026-03-12)
 
 
