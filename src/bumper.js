@@ -437,6 +437,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       positionArr = [metadata.BumperPosition];
     } else if (typeof metadata.BumperPosition === 'string') {
       positionArr = metadata.BumperPosition.split(',').map(Number);
+    } else if (metadata.BumperPosition === undefined) {
+      positionArr = DEFAULT_POSITION;
     }
     if (positionArr) {
       this.config.position = positionArr;
