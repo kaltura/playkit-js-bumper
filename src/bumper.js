@@ -370,6 +370,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
         }
       } else {
         this._state = BumperState.DONE;
+        if (this.player.paused) {
+          this.player.play();
+        }
       }
       this._metadataFetched = true;
     } catch (e) {
@@ -403,7 +406,15 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _isValidBumperMetadata(metadata: any): boolean {
-    const hasBumperUrl = metadata.BumperUrl?.trim().length > 0;
+    let hasBumperUrl = false;
+    if (metadata.BumperUrl) {
+      try {
+        new URL(metadata.BumperUrl);
+        hasBumperUrl = true;
+      } catch (e) {
+        hasBumperUrl = false;
+      }
+    }
     const position = metadata.BumperPosition;
     let hasValidPosition = false;
 
@@ -412,6 +423,8 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     } else if (typeof position === 'string') {
       const postionArr = position.split(',').map(Number);
       hasValidPosition = postionArr.length === 2 && postionArr[0] === BumperBreakType.PREROLL && postionArr[1] === BumperBreakType.POSTROLL;
+    } else if (position === undefined) {
+      hasValidPosition = true;
     }
 
     return hasBumperUrl && hasValidPosition;
@@ -422,10 +435,14 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     let positionArr;
     if (typeof metadata.BumperPosition === 'number') {
       positionArr = [metadata.BumperPosition];
-    } else {
+    } else if (typeof metadata.BumperPosition === 'string') {
       positionArr = metadata.BumperPosition.split(',').map(Number);
+    } else if (metadata.BumperPosition === undefined) {
+      positionArr = DEFAULT_POSITION;
     }
-    this.config.position = positionArr;
+    if (positionArr) {
+      this.config.position = positionArr;
+    }
     this._adBreakPosition = this.config.position[0];
     if (metadata.BumperClickThroughUrl) {
       this.config.clickThroughUrl = metadata.BumperClickThroughUrl;
