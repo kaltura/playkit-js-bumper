@@ -674,7 +674,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return this.config.url;
   }
 
-  async load(): void {
+  async load(): Promise<void> {
     if (this._metadataPromise && !this._metadataFetched) {
       await this._metadataPromise;
     }
