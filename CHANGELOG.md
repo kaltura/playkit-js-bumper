@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 2.1.4 (2026-04-23)
+
+
+### Bug Fixes
+
+* **FEC-14940:** Behavior cleanup for per entry bumper ([#125](https://github.com/kaltura/playkit-js-bumper/issues/125)) ([3ec2bc3](https://github.com/kaltura/playkit-js-bumper/commit/3ec2bc3))
+
+
+
 ### 2.1.3 (2026-04-07)
 
 
