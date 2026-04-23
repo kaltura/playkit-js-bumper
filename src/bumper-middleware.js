@@ -44,7 +44,7 @@ class BumperMiddleware extends BaseMiddleware {
     ) {
       this._context.load();
     }
-    if (!(this._context.config.url && this._context.config.position.includes(BumperBreakType.PREROLL))) {
+    if (!((this._context.config.url || this._context.config.entryId) && this._context.config.position.includes(BumperBreakType.PREROLL))) {
       this._callNextLoad();
     }
   }
@@ -74,7 +74,7 @@ class BumperMiddleware extends BaseMiddleware {
         if (this._context._metadataPromise && !this._context._metadataFetched) {
           await this._context._metadataPromise;
         }
-        if (this._context.config.url && this._context.adBreakPosition === BumperBreakType.PREROLL) {
+        if ((this._context.config.url || this._context.config.entryId) && this._context.adBreakPosition === BumperBreakType.PREROLL) {
           // preroll bumper
           this._context.initBumperCompletedPromise();
           this._context.play();
