@@ -1,0 +1,181 @@
+{
+  "repository": "playkit-js-bumper",
+  "version": "2.1.3",
+
+  "coreResponsibility": {
+    "summary": "PlayKit JS Bumper is a plugin for the Kaltura Player that enables displaying short video clips (bumpers) before and/or after the main content playback, commonly used for channel identification, sponsorship messages, or promotional content.",
+    "type": "plugin"
+  },
+
+  "domainAndLogicOwnership": {
+    "featureOwnership": [
+      "Pre-roll bumper playback (video clip before main content)",
+      "Post-roll bumper playback (video clip after main content)",
+      "Bumper video element management (separate from main video)",
+      "Click-through URL handling for bumper ads",
+      "Bumper state machine management (IDLE, LOADING, LOADED, PLAYING, PAUSED, DONE)",
+      "Playback middleware integration for bumper sequencing",
+      "Ads controller integration for bumper-as-ad behavior",
+      "Engine decorator for playback state during bumper",
+      "Metadata-based bumper configuration from Kaltura backend",
+      "Support for main video tag playback (iOS/TV compatibility)"
+    ],
+    "dataHandling": [
+      "Bumper state machine (BumperState: IDLE, LOADING, LOADED, PLAYING, PAUSED, DONE)",
+      "Bumper break position tracking (PREROLL=0, POSTROLL=-1)",
+      "Content playback state preservation (currentTime, duration, audio/text tracks)",
+      "Bumper configuration (url, clickThroughUrl, position, playOnMainVideoTag)",
+      "Kaltura metadata parsing for bumper URL and position",
+      "Ad break and ad event management",
+      "Bumper completion promise handling"
+    ]
+  },
+
+  "integrationPoints": {
+    "upstream": [
+      {
+        "name": "@playkit-js/kaltura-player-js",
+        "description": "Core Kaltura Player providing BasePlugin, middleware, and event system"
+      },
+      {
+        "name": "@playkit-js/playkit-js",
+        "description": "Core PlayKit library providing video element abstractions"
+      },
+      {
+        "name": "@playkit-js/playkit-js-providers",
+        "description": "OVP provider for metadata API requests"
+      },
+      {
+        "name": "Kaltura Backend Metadata API",
+        "description": "metadata_metadata.list API for fetching bumper configuration from entry metadata"
+      }
+    ],
+    "downstream": [
+      {
+        "name": "Kaltura Player UI",
+        "description": "UI layer that responds to bumper ad events (AD_BREAK_START, AD_BREAK_END)"
+      },
+      {
+        "name": "Analytics plugins",
+        "description": "Plugins that track ad/bumper events"
+      },
+      {
+        "name": "Application layer",
+        "description": "Host applications that configure and consume bumper functionality"
+      }
+    ],
+    "externalApis": [
+      {
+        "name": "Kaltura Metadata API",
+        "endpoint": "metadata_metadata.list",
+        "description": "Retrieves bumper configuration (BumperUrl, BumperPosition, BumperClickThroughUrl) from entry metadata"
+      }
+    ]
+  },
+
+  "technicalStack": {
+    "languages": ["JavaScript (ES6+)", "Flow (type annotations)"],
+    "frameworks": ["Webpack", "Babel", "Karma/Mocha (testing)"],
+    "dependencies": {
+      "runtime": ["fast-xml-parser"],
+      "peer": ["@playkit-js/playkit-js", "@playkit-js/kaltura-player-js"]
+    },
+    "entryPoints": [
+      {
+        "file": "src/index.js",
+        "description": "Plugin registration entry point - registers 'bumper' plugin with Kaltura Player"
+      },
+      {
+        "file": "src/bumper.js",
+        "description": "Main plugin class (Bumper) - implements IMiddlewareProvider, IAdsControllerProvider, IEngineDecoratorProvider"
+      },
+      {
+        "file": "src/bumper-middleware.js",
+        "description": "Playback middleware - intercepts play/pause/load for bumper sequencing"
+      },
+      {
+        "file": "src/bumper-ads-controller.js",
+        "description": "Ads controller implementation - handles bumper-as-ad behavior"
+      },
+      {
+        "file": "src/bumper-engine-decorator.js",
+        "description": "Engine decorator - manages playback state during bumper playback"
+      },
+      {
+        "file": "src/bumper-state.js",
+        "description": "State constants - LOADING, LOADED, PLAYING, PAUSED, IDLE, DONE"
+      },
+      {
+        "file": "src/providers/metadata-loader.js",
+        "description": "Kaltura metadata API loader for fetching bumper config from backend"
+      }
+    ],
+    "buildOutput": "dist/playkit-bumper.js"
+  },
+
+  "triageKeywords": [
+    "bumper",
+    "pre-roll",
+    "preroll",
+    "post-roll",
+    "postroll",
+    "bumper video",
+    "bumper not playing",
+    "bumper stuck",
+    "BumperState",
+    "AD_BREAK_START bumper",
+    "AD_BREAK_END bumper",
+    "clickThroughUrl",
+    "playOnMainVideoTag",
+    "bumper metadata",
+    "BumperUrl",
+    "BumperPosition",
+    "sponsored by clip",
+    "channel intro",
+    "bumper-container",
+    "playkit-bumper",
+    "disableMediaPreload",
+    "bumper position",
+    "bumper click",
+    "BUMPER_CLICKED"
+  ],
+
+  "configurationOptions": {
+    "id": "Container div ID for the bumper",
+    "url": "URL of the bumper video (required)",
+    "clickThroughUrl": "URL opened when clicking on bumper",
+    "position": "Array specifying when to show bumper: [0] = preroll, [-1] = postroll, [0, -1] = both",
+    "disableMediaPreload": "Disable main content preload during bumper",
+    "playOnMainVideoTag": "Play bumper on main video element (for TV/iOS)",
+    "useConfigFromMetadata": "Fetch bumper config from Kaltura entry metadata",
+    "metadataProfileId": "Metadata profile ID for fetching bumper config"
+  },
+
+  "events": {
+    "dispatched": [
+      "AD_MANIFEST_LOADED",
+      "AD_BREAK_START",
+      "AD_BREAK_END",
+      "AD_LOADED",
+      "AD_STARTED",
+      "AD_RESUMED",
+      "AD_PAUSED",
+      "AD_COMPLETED",
+      "AD_CLICKED",
+      "AD_ERROR",
+      "AD_AUTOPLAY_FAILED",
+      "ALL_ADS_COMPLETED",
+      "BUMPER_CLICKED"
+    ],
+    "listened": [
+      "CHANGE_SOURCE_STARTED",
+      "FIRST_PLAYING",
+      "PLAY",
+      "ENDED",
+      "TIME_UPDATE",
+      "RESIZE",
+      "ENTER_FULLSCREEN",
+      "EXIT_FULLSCREEN"
+    ]
+  }
+}
