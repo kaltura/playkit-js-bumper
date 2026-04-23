@@ -1,5 +1,5 @@
 # PlayKit JS Bumper - plugin for the [PlayKit JS Player]
- 
+
 [![Build Status](https://github.com/kaltura/playkit-js-bumper/actions/workflows/run_canary_full_flow.yaml/badge.svg)](https://github.com/kaltura/playkit-js-bumper/actions/workflows/run_canary_full_flow.yaml)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![](https://img.shields.io/npm/v/@playkit-js/playkit-js-bumper/latest.svg)](https://www.npmjs.com/package/@playkit-js/playkit-js-bumper)
@@ -50,19 +50,19 @@ Finally, add the bundle as a script tag in your page, and initialize the player
 <!--PlayKit info plugin-->
 <div id="player-placeholder" style="height:360px; width:640px">
   <script type="text/javascript">
-    var playerContainer = document.querySelector("#player-placeholder");
-    var config = {
-     ...
-     targetId: 'player-placeholder',
-     plugins: {
-       "bumper": {
-			   "url": "<BUMPER URL>"
-			}
-     }
-     ...
-    };
-    var player = KalturaPlayer.setup(config);
-    player.loadMedia(...);
+     var playerContainer = document.querySelector("#player-placeholder");
+     var config = {
+      ...
+      targetId: 'player-placeholder',
+      plugins: {
+        "bumper": {
+       "url": "<BUMPER URL>"
+    }
+      }
+      ...
+     };
+     var player = KalturaPlayer.setup(config);
+     player.loadMedia(...);
   </script>
 </div>
 ```
@@ -72,19 +72,21 @@ Finally, add the bundle as a script tag in your page, and initialize the player
 The bumper plugin purpose is to give the application a way to display a short clip before/after the main entry playback
 Allow the player to display a short clip before main entry. (Channel id, Sponsored by and more)
 
-
 ### Configuration
 
-
-In order to enable the plugin you can give the folowing config parameters while `url` it the only "must" key to make the plugin work
+In order to enable the plugin you can give the folowing config parameters while either `url` or `entryId` is required to make the plugin work
 
 #### id
 
-default = '' - The bumper container div id 
+default = '' - The bumper container div id
 
-#### url 
+#### url
 
-the url of the bumber video
+the url of the bumper video (either `url` or `entryId` must be provided)
+
+#### entryId
+
+default = '' - The Kaltura entry ID of the bumper video. When set, the plugin will fetch the video sources from this entry and use them as the bumper instead of the configured `url`. If `entryId` is not set, the `url` config will be used.
 
 #### clickThroughUrl
 
@@ -92,7 +94,7 @@ url to a website that will be opened when clicking on the bumper screen
 
 #### position
 
-default [0] - bumper before video playback, it receives an array that configured wheter bumper will be shown on playback start, playback end or both =>  [0], [-1], [0, -1]
+default [0] - bumper before video playback, it receives an array that configured wheter bumper will be shown on playback start, playback end or both => [0], [-1], [0, -1]
 
 #### disableMediaPreload
 
@@ -109,6 +111,7 @@ plugins: {
        bumper: {
 		    id: '',
 		    url: '',
+		    entryId: '',
 		    clickThroughUrl: '',
 		    position: [],
 		    disableMediaPreload: false,
@@ -120,7 +123,6 @@ plugins: {
 ### Example:
 
 **[Bumper Plugin Example](https://codepen.io/giladna/pen/eYKmpxR)**
-
 
 ### Coding style tests
 
@@ -141,4 +143,3 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## License
 
 This project is licensed under the AGPL-3.0 License - see the [LICENSE](LICENSE) file for details
-

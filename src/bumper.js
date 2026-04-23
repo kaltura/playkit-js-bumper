@@ -157,13 +157,13 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
    * @memberof Bumper
    */
   play(): void {
-    //preload
-    if ([BumperState.LOADING, BumperState.LOADED].includes(this._bumperState)) {
-      this.dispatchEvent(EventType.AD_BREAK_START, {adBreak: this._getAdBreak()});
-    }
     this._adBreak = true;
     this.load()
       .then(() => {
+        //preload
+        if ([BumperState.LOADING, BumperState.LOADED].includes(this._bumperState)) {
+          this.dispatchEvent(EventType.AD_BREAK_START, {adBreak: this._getAdBreak()});
+        }
         this._hideElement(this._bumperCoverDiv);
         const playPromise = this._videoElement.play();
         if (playPromise) {
