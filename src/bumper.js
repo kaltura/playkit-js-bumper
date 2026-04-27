@@ -84,6 +84,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _validData: Boolean;
   _metadataFetched: Boolean;
   _metadataPromise: Promise<void> | null;
+  _bumperSrc: string;
 
   /**
    * @constructor
@@ -344,6 +345,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._validData = true;
     this._metadataFetched = false;
     this._metadataPromise = null;
+    this._bumperSrc = '';
   }
 
   _setClickThroughUrl() {
@@ -374,13 +376,14 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
         } else {
           this._state = BumperState.DONE;
           this._bumperCompletedPromise = Promise.resolve();
-          if (this.player.paused) {
+          if (this.player.paused && this.player.config.playback.autoplay) {
             this.player.play();
           }
         }
       } else {
         this._state = BumperState.DONE;
-        if (this.player.paused) {
+        this._bumperCompletedPromise = Promise.resolve();
+        if (this.player.paused && this.player.config.playback.autoplay) {
           this.player.play();
         }
       }
@@ -428,8 +431,10 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     return hasBumperUrl;
   }
   _isValidBumperMetadata(metadata: any): boolean {
-    const hasBumperUrl = this._isValidUrl(metadata.BumperUrl);
-    const hasEntryId = typeof metadata.BumperEntryId === 'string';
+    const isBumperUrlValid = this._isValidUrl(metadata.BumperUrl);
+    const isBumperEntryIdValid = typeof metadata.BumperEntryId === 'string';
+    const hasBumperUrl = !!metadata.BumperUrl;
+    const hasEntryId = !!metadata.BumperEntryId;
     const position = metadata.BumperPosition;
     let hasValidPosition = false;
 
@@ -442,12 +447,23 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       hasValidPosition = true;
     }
 
-    return (hasBumperUrl || hasEntryId) && hasValidPosition;
+    if (hasBumperUrl && hasEntryId) {
+      return isBumperUrlValid && isBumperEntryIdValid && hasValidPosition;
+    }
+    if (hasBumperUrl) {
+      return isBumperUrlValid && hasValidPosition;
+    }
+    if (hasEntryId) {
+      return isBumperEntryIdValid && hasValidPosition;
+    }
+    return false;
   }
 
   _updateConfigFromMetadata(metadata: any): void {
     if (this._isValidUrl(metadata.BumperUrl)) {
       this.config.url = metadata.BumperUrl;
+    } else {
+      this.config.url = '';
     }
     if (typeof metadata.BumperEntryId === 'string') {
       this.config.entryId = metadata.BumperEntryId;
@@ -593,7 +609,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   }
 
   _maybeSwitchToContent(): void {
-    if (this._contentSrc && this.player.getVideoElement().src === this.config.url && !this.player.config.playback.playAdsWithMSE) {
+    if (this._contentSrc && this.player.getVideoElement().src === this._bumperSrc && !this.player.config.playback.playAdsWithMSE) {
       this.logger.debug('Switch source to content url');
       this.eventManager.listenOnce(this._engine, EventType.PLAYING, () => {
         this.player.selectTrack(this._selectedAudioTrack);
@@ -685,7 +701,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
       if (this._adBreak) {
         this.dispatchEvent(EventType.AD_BREAK_START, {adBreak: this._getAdBreak()});
       }
-      const bumperUrl = await this._getBumperUrl();
+      this._bumperSrc = await this._getBumperUrl();
       this.eventManager.listenOnce(this._videoElement, EventType.LOADED_DATA, () => this._onLoadedData());
       if (this.playOnMainVideoTag()) {
         this.logger.debug('Switch source to bumper url');
@@ -695,9 +711,9 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
         this._selectedAudioTrack = this.player.getActiveTracks().audio;
         this._selectedTextTrack = this.player.getActiveTracks().text;
         this._selectedPlaybackRate = this.player.playbackRate;
-        this.player.getVideoElement().src = bumperUrl;
+        this.player.getVideoElement().src = this._bumperSrc;
       } else {
-        this._bumperVideoElement.src = bumperUrl;
+        this._bumperVideoElement.src = this._bumperSrc;
         this._bumperVideoElement.setAttribute('playsinline', '');
       }
     }
@@ -706,7 +722,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
   _getAd(): Ad {
     const adOptions: PKAdOptions = {
       system: '',
-      url: this.config.url,
+      url: this._bumperSrc || this.config.url,
       contentType: '',
       title: '',
       position: 1,
@@ -742,6 +758,7 @@ class Bumper extends BasePlugin implements IMiddlewareProvider, IAdsControllerPr
     this._hideElement(this._bumperContainerDiv);
     this._resetClickThroughElement();
     Utils.Dom.removeAttribute(this._bumperVideoElement, 'src');
+    this._bumperSrc = '';
     this._initMembers();
     if (this.useMetadata()) {
       this.config = {...this._initialConfig};

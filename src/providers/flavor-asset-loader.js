@@ -51,7 +51,9 @@ export class FlavorAssetLoader implements ILoader {
     if (response && response.length > 0) {
       const flavorAssetListResponse = new KalturaFlavorAssetListResponse(response[0]?.data);
       if (flavorAssetListResponse.data && flavorAssetListResponse.data.length > 0) {
-        const highestBitrateAsset = [...flavorAssetListResponse.data].sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))[0];
+        const highestBitrateAsset = flavorAssetListResponse.data.reduce((highest, asset) =>
+          (asset.bitrate || 0) > (highest.bitrate || 0) ? asset : highest
+        );
         this._response.flavorAsset = highestBitrateAsset;
       }
     }

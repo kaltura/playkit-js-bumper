@@ -74,7 +74,7 @@ Allow the player to display a short clip before main entry. (Channel id, Sponsor
 
 ### Configuration
 
-In order to enable the plugin you can give the folowing config parameters while either `url` or `entryId` is required to make the plugin work
+In order to enable the plugin you can give the following config parameters while either `url` or `entryId` is required to make the plugin work
 
 #### id
 
