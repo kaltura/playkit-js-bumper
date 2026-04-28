@@ -1239,5 +1239,57 @@ describe('Bumper', () => {
       player.configure({plugins: {bumper: {clickThroughUrl: 'some/updated/url'}}});
       player.plugins.bumper._bumperClickThroughDiv.href.endsWith('some/updated/url').should.be.true;
     });
+
+    it('Should load bumper from entryId and fire correct event sequence', done => {
+      let eventSequence = [];
+      eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, () => {
+        eventSequence.push('AD_MANIFEST_LOADED');
+        eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
+          eventSequence.push('AD_BREAK_START');
+          eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
+            try {
+              eventSequence[0].should.equal('AD_MANIFEST_LOADED');
+              eventSequence[1].should.equal('AD_BREAK_START');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
+        });
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            entryId: '0_w9ud0vch',
+            position: [BumperBreakType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.play();
+    });
+
+    it('Should fallback to URL when entryId fails', done => {
+      eventManager.listenOnce(player, player.Event.AD_MANIFEST_LOADED, () => {
+        eventManager.listenOnce(player, player.Event.AD_BREAK_START, () => {
+          eventManager.listenOnce(player, player.Event.AD_COMPLETED, () => {
+            eventManager.listenOnce(player, player.Event.AD_BREAK_END, () => {
+              done();
+            });
+          });
+        });
+      });
+      player.configure({
+        plugins: {
+          bumper: {
+            entryId: 'invalid_entry_id',
+            url: BUMPER_URL,
+            position: [BumperBreakType.PREROLL]
+          }
+        },
+        sources
+      });
+      player.play();
+    });
   });
 });
