@@ -1,0 +1,158 @@
+{
+  "repository": "@playkit-js/playkit-js-bumper",
+  "version": "2.1.4",
+  "lastUpdated": "2026-05-04",
+
+  "coreResponsibility": {
+    "summary": "A PlayKit JS plugin that displays configurable pre-roll and/or post-roll bumper video clips before or after main video content playback.",
+    "type": "plugin"
+  },
+
+  "domainAndLogicOwnership": {
+    "featureOwnership": [
+      "Bumper video playback (pre-roll and post-roll)",
+      "Bumper video URL or entry-based loading",
+      "Click-through URL support for bumper ads",
+      "Bumper state machine management (idle, loading, loaded, playing, paused, done)",
+      "Bumper-as-ad integration (dispatches ad-related events like AD_BREAK_START, AD_STARTED, AD_COMPLETED)",
+      "Main video tag playback mode for iOS/TV compatibility",
+      "Metadata-based bumper configuration from Kaltura entries",
+      "Content source switching when bumper plays on main video tag"
+    ],
+    "dataHandling": [
+      "BumperState: Plugin state machine (IDLE, LOADING, LOADED, PLAYING, PAUSED, DONE)",
+      "BumperBreakType: Position indicator (PREROLL=0, POSTROLL=-1)",
+      "Bumper video element and container DOM management",
+      "Content playback state preservation (currentTime, duration, audio/text tracks, playbackRate)",
+      "KalturaMetadata: Bumper configuration from entry metadata (BumperUrl, BumperEntryId, BumperPosition, BumperClickThroughUrl)",
+      "KalturaFlavorAsset: Video flavor/quality selection for entry-based bumpers"
+    ]
+  },
+
+  "integrationPoints": {
+    "upstream": [
+      {
+        "name": "@playkit-js/kaltura-player-js",
+        "description": "Parent player that loads and manages this plugin"
+      },
+      {
+        "name": "@playkit-js/playkit-js",
+        "description": "Core player engine providing BasePlugin, middleware, and event system"
+      },
+      {
+        "name": "@playkit-js/playkit-js-providers/ovp-provider",
+        "description": "OVP provider for Kaltura API requests (metadata, flavor assets)"
+      }
+    ],
+    "downstream": [
+      {
+        "name": "Kaltura Player UI",
+        "description": "Receives ad events (AD_BREAK_START, AD_STARTED, etc.) to display ad UI"
+      },
+      {
+        "name": "Analytics plugins",
+        "description": "Consume ad events for tracking bumper playback"
+      }
+    ],
+    "externalAPIs": [
+      {
+        "name": "Kaltura OVP API - metadata_metadata.list",
+        "description": "Fetches bumper configuration from entry metadata"
+      },
+      {
+        "name": "Kaltura OVP API - flavorasset.list",
+        "description": "Lists available video flavors for bumper entry"
+      },
+      {
+        "name": "Kaltura OVP API - flavorasset.getUrl",
+        "description": "Gets playback URL for selected bumper flavor"
+      }
+    ]
+  },
+
+  "technicalStack": {
+    "languages": ["JavaScript (ES6+)", "Flow (static type checking)"],
+    "frameworks": ["PlayKit JS Plugin Architecture"],
+    "buildTools": ["Webpack", "Babel"],
+    "testingTools": ["Karma", "Mocha", "Chai", "Sinon"],
+    "dependencies": {
+      "runtime": ["fast-xml-parser"],
+      "peer": ["@playkit-js/playkit-js", "@playkit-js/kaltura-player-js"]
+    },
+    "entryPoints": {
+      "main": "src/index.js",
+      "pluginClass": "src/bumper.js",
+      "middleware": "src/bumper-middleware.js",
+      "adsController": "src/bumper-ads-controller.js",
+      "engineDecorator": "src/bumper-engine-decorator.js",
+      "stateDefinitions": "src/bumper-state.js",
+      "events": "src/events/events.js",
+      "providers": [
+        "src/providers/metadata-loader.js",
+        "src/providers/flavor-asset-loader.js",
+        "src/providers/flavor-url-loader.js"
+      ],
+      "output": "dist/playkit-bumper.js"
+    }
+  },
+
+  "triageKeywords": [
+    "bumper",
+    "pre-roll",
+    "preroll",
+    "post-roll",
+    "postroll",
+    "bumper video",
+    "BumperState",
+    "BumperBreakType",
+    "playkit-bumper",
+    "bumper-container",
+    "playOnMainVideoTag",
+    "BumperMiddleware",
+    "BumperAdsController",
+    "BumperEngineDecorator",
+    "bumper_clicked"
+  ],
+
+  "errorPatterns": [
+    "Error loading bumper",
+    "BumperMiddleware",
+    "playkit-bumper-container",
+    "Switch source to bumper url",
+    "Switch source to content url",
+    "Get metadata from entry is failed",
+    "Failed to load bumper from entryId",
+    "bumper completed promise"
+  ],
+
+  "configurationKeys": [
+    "plugins.bumper.url",
+    "plugins.bumper.entryId",
+    "plugins.bumper.clickThroughUrl",
+    "plugins.bumper.position",
+    "plugins.bumper.disableMediaPreload",
+    "plugins.bumper.playOnMainVideoTag",
+    "plugins.bumper.useConfigFromMetadata",
+    "plugins.bumper.metadataProfileId"
+  ],
+
+  "relatedEvents": [
+    "AD_MANIFEST_LOADED",
+    "AD_BREAK_START",
+    "AD_BREAK_END",
+    "AD_LOADED",
+    "AD_STARTED",
+    "AD_COMPLETED",
+    "AD_PAUSED",
+    "AD_RESUMED",
+    "AD_ERROR",
+    "AD_CLICKED",
+    "AD_PROGRESS",
+    "AD_BUFFERING",
+    "AD_VOLUME_CHANGED",
+    "AD_MUTED",
+    "ADS_COMPLETED",
+    "AD_AUTOPLAY_FAILED",
+    "BUMPER_CLICKED"
+  ]
+}
